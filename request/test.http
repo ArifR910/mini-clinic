@@ -74,6 +74,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hb
 DELETE http://localhost:5000/api/patients/1
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxODUwNSwiZXhwIjoxNzg1NTA0OTA1fQ.T7TdTpkJ_02D7iwPvgtPVhqotse2HJENiXiBAKdAeIc
 
+
+### Registrations Endpoint Test
+
 ### 10. Buat Pendaftaran Pasien Baru
 POST http://localhost:5000/api/registrations
 Content-Type: application/json
@@ -102,3 +105,29 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hb
 {
   "status": "Check In"
 }
+
+
+### Medcal Records Endpoint Test
+
+### 13. Simpan Rekam Medis Pasien (POST)
+POST http://localhost:5000/api/medical-records
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxODUwNSwiZXhwIjoxNzg1NTA0OTA1fQ.T7TdTpkJ_02D7iwPvgtPVhqotse2HJENiXiBAKdAeIc
+
+{
+  "registration_id": 3,
+  "patient_id": 1,
+  "doctor_id": 1,
+  "subjective": "Pasien mengeluh pusing dan demam sejak kemarin.",
+  "systolic": 120,
+  "diastolic": 80,
+  "body_temperature": 38.5,
+  "weight": 65,
+  "height": 170,
+  "assessment": "Febris / Demam Dengue",
+  "plan": "Paracetamol 500mg 3x1, istirahat cukup, minum air putih 2L per hari."
+}
+
+### 14. Ambil Riwayat Rekam Medis Pasien ID 1 (GET)
+GET http://localhost:5000/api/medical-records/patient/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxODUwNSwiZXhwIjoxNzg1NTA0OTA1fQ.T7TdTpkJ_02D7iwPvgtPVhqotse2HJENiXiBAKdAeIc
