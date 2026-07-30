@@ -1,0 +1,19 @@
+### 1. Register Admin Baru
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "role_id": 1,
+  "name": "Admin Klinik",
+  "username": "admin",
+  "password": "password123"
+}
+
+### 2. Test Login
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "password123"
+}
