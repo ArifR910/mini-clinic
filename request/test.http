@@ -73,3 +73,32 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hb
 ### 9. Hapus Pasien
 DELETE http://localhost:5000/api/patients/1
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxODUwNSwiZXhwIjoxNzg1NTA0OTA1fQ.T7TdTpkJ_02D7iwPvgtPVhqotse2HJENiXiBAKdAeIc
+
+### 10. Buat Pendaftaran Pasien Baru
+POST http://localhost:5000/api/registrations
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxODUwNSwiZXhwIjoxNzg1NTA0OTA1fQ.T7TdTpkJ_02D7iwPvgtPVhqotse2HJENiXiBAKdAeIc
+
+{
+  "patient_id": 1,
+  "doctor_id": 1,
+  "polyclinic_id": 1,
+  "visit_date": "2026-07-30",
+  "payment_type": "BPJS",
+  "initial_complaint": "Pusing pala ku dok."
+}
+
+### 11. Get Semua Pendaftaran Pasien
+GET http://localhost:5000/api/registrations
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxODUwNSwiZXhwIjoxNzg1NTA0OTA1fQ.T7TdTpkJ_02D7iwPvgtPVhqotse2HJENiXiBAKdAeIc
+
+
+### 12. Ubah Status Pendaftaran Pasien
+PUT http://localhost:5000/api/registrations/3
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxODUwNSwiZXhwIjoxNzg1NTA0OTA1fQ.T7TdTpkJ_02D7iwPvgtPVhqotse2HJENiXiBAKdAeIc
+
+
+{
+  "status": "Check In"
+}
