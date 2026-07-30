@@ -109,7 +109,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hb
 
 ### Medcal Records Endpoint Test
 
-### 13. Simpan Rekam Medis Pasien (POST)
+### 13. Simpan Rekam Medis Pasien
 POST http://localhost:5000/api/medical-records
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxODUwNSwiZXhwIjoxNzg1NTA0OTA1fQ.T7TdTpkJ_02D7iwPvgtPVhqotse2HJENiXiBAKdAeIc
@@ -128,6 +128,31 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hb
   "plan": "Paracetamol 500mg 3x1, istirahat cukup, minum air putih 2L per hari."
 }
 
-### 14. Ambil Riwayat Rekam Medis Pasien ID 1 (GET)
+### 14. Ambil Riwayat Rekam Medis Pasien ID 1
 GET http://localhost:5000/api/medical-records/patient/1
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxODUwNSwiZXhwIjoxNzg1NTA0OTA1fQ.T7TdTpkJ_02D7iwPvgtPVhqotse2HJENiXiBAKdAeIc
+
+
+### Queues Endpoint Test
+
+### 15. Generate Nomor Antrean Baru
+POST http://localhost:5000/api/queues
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxODUwNSwiZXhwIjoxNzg1NTA0OTA1fQ.T7TdTpkJ_02D7iwPvgtPVhqotse2HJENiXiBAKdAeIc
+
+{
+  "registration_id": 3
+}
+
+### 16. Lihat Daftar Antrean Hari Ini
+GET http://localhost:5000/api/queues
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxODUwNSwiZXhwIjoxNzg1NTA0OTA1fQ.T7TdTpkJ_02D7iwPvgtPVhqotse2HJENiXiBAKdAeIc
+
+### 17. Memanggil Status Antrean
+PUT http://localhost:5000/api/queues/1/status
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxODUwNSwiZXhwIjoxNzg1NTA0OTA1fQ.T7TdTpkJ_02D7iwPvgtPVhqotse2HJENiXiBAKdAeIc
+
+{
+  "status": "Dipanggil"
+}
