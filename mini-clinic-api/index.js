@@ -5,6 +5,7 @@ require('dotenv').config();
 const db = require('./src/config/db');
 
 const authRoutes = require('./src/routes/authRoutes');
+const patientRoutes = require('./src/routes/patientRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -20,6 +21,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/patients', patientRoutes);
 
 app.listen(PORT, () => {
     console.log(`🚀 Server berjalan di http://localhost:${PORT}`);

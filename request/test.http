@@ -1,3 +1,5 @@
+### authentication test 
+
 ### 1. Register Admin Baru
 POST http://localhost:5000/api/auth/register
 Content-Type: application/json
@@ -18,6 +20,9 @@ Content-Type: application/json
   "password": "password123"
 }
 
+
+### Middleware Test
+
 ### 3. Test Akses Profil Tanpa Token (Harus Gagal 401)
 GET http://localhost:5000/api/auth/profile
 
@@ -25,3 +30,46 @@ GET http://localhost:5000/api/auth/profile
 # Tempelkan token JWT hasil login kamu tepat setelah kata Bearer
 GET http://localhost:5000/api/auth/profile
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxNjYzNiwiZXhwIjoxNzg1NTAzMDM2fQ.iNEONS3a-vQY9_KziOSYrwadN3yMcnn3aMLip9PNcmM
+
+
+### Patients Endpoint Test
+
+### 5. Tambah Pasien Baru
+POST http://localhost:5000/api/patients
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxODUwNSwiZXhwIjoxNzg1NTA0OTA1fQ.T7TdTpkJ_02D7iwPvgtPVhqotse2HJENiXiBAKdAeIc
+
+{
+  "nik": "3201123456780001",
+  "name": "Budi Santoso",
+  "birth_date": "1990-05-15",
+  "gender": "L",
+  "address": "Jl. Merdeka No. 123, Bandung",
+  "phone": "081234567890"
+}
+
+### 6. Ambil Semua Pasien
+GET http://localhost:5000/api/patients
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxODUwNSwiZXhwIjoxNzg1NTA0OTA1fQ.T7TdTpkJ_02D7iwPvgtPVhqotse2HJENiXiBAKdAeIc
+
+### 7. Ambil Detail Pasien Berdasarkan ID
+GET http://localhost:5000/api/patients/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxODUwNSwiZXhwIjoxNzg1NTA0OTA1fQ.T7TdTpkJ_02D7iwPvgtPVhqotse2HJENiXiBAKdAeIc
+
+### 8. Update Data Pasien
+PUT http://localhost:5000/api/patients/1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxODUwNSwiZXhwIjoxNzg1NTA0OTA1fQ.T7TdTpkJ_02D7iwPvgtPVhqotse2HJENiXiBAKdAeIc
+
+{
+  "nik": "3201123456780001",
+  "name": "Budi Santoso, S.Kom",
+  "birth_date": "1990-05-15",
+  "gender": "L",
+  "address": "Jl. Merdeka No. 123, Bandung (Alamat Baru)",
+  "phone": "081234567899"
+}
+
+### 9. Hapus Pasien
+DELETE http://localhost:5000/api/patients/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxODUwNSwiZXhwIjoxNzg1NTA0OTA1fQ.T7TdTpkJ_02D7iwPvgtPVhqotse2HJENiXiBAKdAeIc
