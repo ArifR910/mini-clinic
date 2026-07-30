@@ -17,3 +17,11 @@ Content-Type: application/json
   "username": "admin",
   "password": "password123"
 }
+
+### 3. Test Akses Profil Tanpa Token (Harus Gagal 401)
+GET http://localhost:5000/api/auth/profile
+
+### 4. Test Akses Profil Dengan Token (Harus Berhasil 200 OK)
+# Tempelkan token JWT hasil login kamu tepat setelah kata Bearer
+GET http://localhost:5000/api/auth/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxNjYzNiwiZXhwIjoxNzg1NTAzMDM2fQ.iNEONS3a-vQY9_KziOSYrwadN3yMcnn3aMLip9PNcmM
