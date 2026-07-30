@@ -17,6 +17,8 @@ app.get('/', (req, res) => {
     });
 });
 
+app.use('/api/auth', authRoutes);
+
 app.listen(PORT, () => {
     console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
 });
