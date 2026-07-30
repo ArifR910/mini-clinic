@@ -156,3 +156,10 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hb
 {
   "status": "Dipanggil"
 }
+
+
+### Dashboard Endpoint Test
+
+### 18. Get Statistik Dashboard
+GET http://localhost:5000/api/dashboard
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxODUwNSwiZXhwIjoxNzg1NTA0OTA1fQ.T7TdTpkJ_02D7iwPvgtPVhqotse2HJENiXiBAKdAeIc
