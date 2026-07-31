@@ -185,8 +185,10 @@ const Dashboard = () => {
             <button style={actionButtonStyle("#2563eb")}>
               + Registrasi Pasien Baru
             </button>
-            <button style={actionButtonStyle("#059669")}>
-              + Pendaftaran Berobat
+            <button
+              onClick={() => navigate("/patients")}
+              style={actionButtonStyle("#2563eb")}>
+              Daftar Pasien Baru
             </button>
             <button style={actionButtonStyle("#4f46e5")}>
               📋 Lihat Antrean
