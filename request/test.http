@@ -97,7 +97,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hb
 
 
 ### 12. Ubah Status Pendaftaran Pasien
-PUT http://localhost:5000/api/registrations/3
+PUT http://localhost:5000/api/registrations/1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxODUwNSwiZXhwIjoxNzg1NTA0OTA1fQ.T7TdTpkJ_02D7iwPvgtPVhqotse2HJENiXiBAKdAeIc
 
@@ -115,7 +115,7 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxODUwNSwiZXhwIjoxNzg1NTA0OTA1fQ.T7TdTpkJ_02D7iwPvgtPVhqotse2HJENiXiBAKdAeIc
 
 {
-  "registration_id": 3,
+  "registration_id": 1,
   "patient_id": 1,
   "doctor_id": 1,
   "subjective": "Pasien mengeluh pusing dan demam sejak kemarin.",
@@ -141,7 +141,7 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc4NTQxODUwNSwiZXhwIjoxNzg1NTA0OTA1fQ.T7TdTpkJ_02D7iwPvgtPVhqotse2HJENiXiBAKdAeIc
 
 {
-  "registration_id": 3
+  "registration_id": 1
 }
 
 ### 16. Lihat Daftar Antrean Hari Ini
