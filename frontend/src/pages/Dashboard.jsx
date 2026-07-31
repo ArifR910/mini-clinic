@@ -171,27 +171,21 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Menu Aksi Cepat */}
-        <div
-          style={{
-            backgroundColor: "#ffffff",
-            borderRadius: "12px",
-            padding: "24px",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
-          }}
-        >
-          <h3 style={{ marginTop: 0, color: "#334155" }}>Aksi Cepat</h3>
-          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-            <button style={actionButtonStyle("#2563eb")}>
-              + Registrasi Pasien Baru
+        {/* Bagian Aksi Cepat kamu */}
+        <div className="quick-actions">
+          <h3>Aksi Cepat</h3>
+          <div>
+            <button onClick={() => navigate("/patients")}>
+              Daftar Pasien
             </button>
-            <button
-              onClick={() => navigate("/patients")}
-              style={actionButtonStyle("#2563eb")}>
-              Daftar Pasien Baru
+
+            <button onClick={() => navigate("/registrations")}>
+              daftar berobat
             </button>
-            <button style={actionButtonStyle("#4f46e5")}>
-              📋 Lihat Antrean
+
+            {/* Tombol Lihat Antrean */}
+            <button onClick={() => navigate("/queues")}>
+              Lihat Antrian
             </button>
           </div>
         </div>

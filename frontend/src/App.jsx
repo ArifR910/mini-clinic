@@ -8,6 +8,8 @@ import {
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Patients from "./pages/Patients";
+import Registrations from "./pages/Registrations";
+import Queues from "./pages/Queues";
 import { AuthProvider } from "./context/AuthContext";
 
 const ProtectedRoute = ({ children }) => {
@@ -33,6 +35,8 @@ function App() {
             }
           />
           <Route path="/patients" element={<Patients />} />
+          <Route path="/registrations" element={<Registrations />} />
+          <Route path="/queues" element={<Queues />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Router>
