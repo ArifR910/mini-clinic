@@ -166,7 +166,7 @@ const Dashboard = () => {
                 color: "#7c2d12",
               }}
             >
-              {stats.antreanBerjalan || 5}
+              {stats.antreanBerjalan}
             </p>
           </div>
         </div>
