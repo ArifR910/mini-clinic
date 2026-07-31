@@ -12,31 +12,47 @@ const sendError = (res, statusCode, message, errors = null) => {
 const getAllRegistrations = async (req, res) => {
   try {
     const query = `
-            SELECT 
-                r.id, r.polyclinic_id, r.visit_date, r.payment_type, r.initial_complaint, r.status, r.created_at,
-                p.id AS patient_id, p.mr_number, p.name AS patient_name,
-                d.id AS doctor_id, d.specialization AS doctor_specialization, u.name AS doctor_user_name,
-                poly.name AS polyclinic_name,
-                q.queue_number, q.status AS queue_status
-            FROM registrations r
-            JOIN patients p ON r.patient_id = p.id
-            JOIN doctors d ON r.doctor_id = d.id
-            JOIN users u ON d.user_id = u.id
-            LEFT JOIN polyclinics poly ON r.polyclinic_id = poly.id
-            LEFT JOIN queues q ON q.registration_id = r.id
-            ORDER BY r.created_at DESC
-        `;
+      SELECT 
+        r.id, 
+        r.polyclinic_id, 
+        r.visit_date, 
+        r.payment_type, 
+        r.initial_complaint, 
+        r.created_at,
+        p.id AS patient_id, 
+        p.mr_number, 
+        p.name AS patient_name,
+        d.id AS doctor_id, 
+        d.specialization AS doctor_specialization, 
+        u.name AS doctor_name,
+        poly.name AS polyclinic_name,
+        q.queue_number,
+        COALESCE(q.status, r.status) AS status
+      FROM registrations r
+      JOIN patients p ON r.patient_id = p.id
+      LEFT JOIN doctors d ON r.doctor_id = d.id
+      LEFT JOIN users u ON d.user_id = u.id
+      LEFT JOIN polyclinics poly ON r.polyclinic_id = poly.id
+      LEFT JOIN queues q ON q.registration_id = r.id
+      ORDER BY r.created_at DESC
+    `;
+
     const [registrations] = await db.query(query);
+
     return sendSuccess(
       res,
       200,
       "Berhasil mengambil data pendaftaran",
-      registrations,
+      registrations
     );
   } catch (error) {
     console.error("Error getAllRegistrations:", error);
     return sendError(res, 500, "Terjadi kesalahan pada server");
   }
+};
+
+module.exports = {
+  getAllRegistrations,
 };
 
 // 2. POST (Daftarkan pasien)

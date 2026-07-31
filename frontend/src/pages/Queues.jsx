@@ -8,11 +8,10 @@ const Queues = () => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Fetch daftar antrean dari backend
   const fetchQueues = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/registrations");
+      const res = await api.get("/queues");
       if (res.data.success) {
         setQueues(res.data.data);
       }
@@ -28,14 +27,14 @@ const Queues = () => {
     fetchQueues();
   }, []);
 
-  // Update status antrean (Menunggu -> Dipanggil -> Pemeriksaan -> Selesai)
-  const handleStatusChange = async (id, newStatus) => {
+  const handleStatusChange = async (queueId, newStatus) => {
     try {
-      const res = await api.put(`/registrations/${id}`, { status: newStatus });
+      const res = await api.put(`/queues/${queueId}/status`, { status: newStatus });
       if (res.data.success) {
-        fetchQueues(); // Refresh data setelah berhasil update
+        fetchQueues();
       }
     } catch (err) {
+      console.error("Gagal update status:", err);
       alert(err.response?.data?.message || "Gagal memperbarui status antrean");
     }
   };
@@ -57,7 +56,7 @@ const Queues = () => {
         ← Kembali ke Dashboard
       </button>
 
-      <h2>Manajemen Antrean Klinik</h2>
+      <h2>Manajemen Antrean Klinik Hari Ini</h2>
 
       {errorMsg && <p style={{ color: "red" }}>{errorMsg}</p>}
 
@@ -74,7 +73,8 @@ const Queues = () => {
             <tr style={{ backgroundColor: "#f2f2f2", color: "#333" }}>
               <th>No. Antrean</th>
               <th>Nama Pasien</th>
-              <th>Poli / Dokter</th>
+              <th>Poli</th>
+              <th>Keluhan</th>
               <th>Status Antrean</th>
               <th>Aksi Pemanggilan</th>
             </tr>
@@ -89,7 +89,8 @@ const Queues = () => {
                     </strong>
                   </td>
                   <td>{item.patient_name}</td>
-                  <td>{item.doctor_specialization || item.polyclinic_name || "Poli Umum"}</td>
+                  <td>{item.polyclinic_name || "Poli Umum"}</td>
+                  <td>{item.initial_complaint || "-"}</td>
                   <td>
                     <span
                       style={{
@@ -98,10 +99,10 @@ const Queues = () => {
                         backgroundColor:
                           item.status === "Dipanggil"
                             ? "#fef08a"
-                            : item.status === "Pemeriksaan"
-                            ? "#93c5fd"
                             : item.status === "Selesai"
                             ? "#bbf7d0"
+                            : item.status === "Batal"
+                            ? "#fecaca"
                             : "#e5e7eb",
                         color: "#333",
                         fontWeight: "bold",
@@ -112,63 +113,89 @@ const Queues = () => {
                   </td>
                   <td>
                     <div style={{ display: "flex", gap: "8px" }}>
+                      {/* Status: Menunggu -> Panggil atau Batal */}
                       {item.status === "Menunggu" && (
-                        <button
-                          onClick={() => handleStatusChange(item.id, "Dipanggil")}
-                          style={{
-                            backgroundColor: "#eab308",
-                            color: "#fff",
-                            border: "none",
-                            padding: "6px 10px",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          📢 Panggil Pasien
-                        </button>
+                        <>
+                          <button
+                            onClick={() => handleStatusChange(item.id, "Dipanggil")}
+                            style={{
+                              backgroundColor: "#eab308",
+                              color: "#fff",
+                              border: "none",
+                              padding: "6px 10px",
+                              borderRadius: "4px",
+                              cursor: "pointer",
+                            }}
+                          >
+                            📢 Panggil Pasien
+                          </button>
+                          <button
+                            onClick={() => handleStatusChange(item.id, "Batal")}
+                            style={{
+                              backgroundColor: "#ef4444",
+                              color: "#fff",
+                              border: "none",
+                              padding: "6px 10px",
+                              borderRadius: "4px",
+                              cursor: "pointer",
+                            }}
+                          >
+                            ❌ Batal
+                          </button>
+                        </>
                       )}
 
+                      {/* Status: Dipanggil -> Selesaikan atau Batal */}
                       {item.status === "Dipanggil" && (
-                        <button
-                          onClick={() => handleStatusChange(item.id, "Pemeriksaan")}
-                          style={{
-                            backgroundColor: "#3b82f6",
-                            color: "#fff",
-                            border: "none",
-                            padding: "6px 10px",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          🩺 Masuk Pemeriksaan
-                        </button>
+                        <>
+                          <button
+                            onClick={() => handleStatusChange(item.id, "Selesai")}
+                            style={{
+                              backgroundColor: "#22c55e",
+                              color: "#fff",
+                              border: "none",
+                              padding: "6px 10px",
+                              borderRadius: "4px",
+                              cursor: "pointer",
+                            }}
+                          >
+                            ✅ Selesaikan
+                          </button>
+                          <button
+                            onClick={() => handleStatusChange(item.id, "Batal")}
+                            style={{
+                              backgroundColor: "#ef4444",
+                              color: "#fff",
+                              border: "none",
+                              padding: "6px 10px",
+                              borderRadius: "4px",
+                              cursor: "pointer",
+                            }}
+                          >
+                            ❌ Batal
+                          </button>
+                        </>
                       )}
 
-                      {item.status === "Pemeriksaan" && (
-                        <button
-                          onClick={() => handleStatusChange(item.id, "Selesai")}
-                          style={{
-                            backgroundColor: "#22c55e",
-                            color: "#fff",
-                            border: "none",
-                            padding: "6px 10px",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          ✅ Selesaikan
-                        </button>
+                      {/* Status Terakhir */}
+                      {item.status === "Selesai" && (
+                        <span style={{ color: "#16a34a", fontWeight: "500" }}>
+                          ✓ Selesai Dilayani
+                        </span>
                       )}
-
-                      {item.status === "Selesai" && <span>Selesai Dilayani</span>}
+                      {item.status === "Batal" && (
+                        <span style={{ color: "#dc2626", fontWeight: "500" }}>
+                          ✗ Dibatalkan
+                        </span>
+                      )}
                     </div>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="5" style={{ textAlign: "center" }}>
-                  Belum ada antrean berjalan.
+                <td colSpan="6" style={{ textAlign: "center" }}>
+                  Belum ada antrean berjalan hari ini.
                 </td>
               </tr>
             )}

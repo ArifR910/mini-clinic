@@ -180,11 +180,13 @@ const Registrations = () => {
                         borderRadius: "4px",
                         backgroundColor:
                           reg.status === "Dipanggil"
-                            ? "#fef08a"
+                            ? "#fef08a" // Kuning
                             : reg.status === "Selesai"
-                              ? "#bbf7d0"
-                              : "#e5e7eb",
-                        color: "#333",
+                              ? "#bbf7d0" // Hijau
+                              : reg.status === "Batal"
+                                ? "#fecaca" // Merah
+                                : "#e5e7eb", // Abu-abu (Menunggu)
+                        color: reg.status === "Batal" ? "#dc2626" : "#333",
                         fontWeight: "bold",
                       }}
                     >
