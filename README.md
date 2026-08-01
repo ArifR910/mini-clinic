@@ -54,6 +54,40 @@ Aplikasi menyediakan 3 role utama dengan hak akses tersendiri:
 3. Jalankan server frontend:
     npm run dev
 
+---
+
+## 📁 Struktur Project
+MINICLINIC/
+├── docs/                         # File dokumentasi (ERD, Postman Collection, Database Dump .sql)
+│
+├── frontend/                     # Source Code Frontend (React.js + Vite)
+│   ├── public/
+│   ├── src/
+│   │   ├── api/                  # Konfigurasi Axios & API Client
+│   │   ├── assets/               # Gambar, logo, & aset statis
+│   │   ├── components/           # Reusable UI Components
+│   │   ├── context/              # Auth Context & Management State
+│   │   ├── pages/                # Halaman Aplikasi (Dashboard, Patients, Queues, MedicalRecord, PatientHistory, dll)
+│   │   ├── App.jsx               # Routing & Root Component
+│   │   └── main.jsx              # Entry point React
+│   ├── .gitignore
+│   ├── index.html
+│   ├── package.json
+│   └── vite.config.js
+│
+├── mini-clinic-api/              # Source Code Backend (Node.js + Express)
+│   ├── src/                      # Controller, Routes, Middlewares, & Config
+│   ├── .env                      # File environment lokal
+│   ├── index.js                  # Entry point Server Express
+│   ├── package.json
+│   └── .gitignore
+│
+├── request/                      # File pengujian API/HTTP Client
+├── .env.example                  # Template variabel lingkungan
+├── .gitignore
+└── README.md                     # Dokumentasi utama proyek
+
+---
 
 ## 📂 Deliverables & Dokumentasi Tambahan
 Seluruh berkas dokumentasi telah disimpan di folder docs:
