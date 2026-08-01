@@ -13,7 +13,7 @@ Mini Clinic Information System adalah aplikasi berbasis web yang dirancang untuk
 
 ---
 
-## 👥 Akun Login Testing
+## 👥 Akun Login
 Aplikasi menyediakan 3 role utama dengan hak akses tersendiri:
 
 | Role | Hak Akses |
