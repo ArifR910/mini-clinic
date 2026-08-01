@@ -19,8 +19,8 @@ Aplikasi menyediakan 3 role utama dengan hak akses tersendiri:
 | Role | Username | Password | Hak Akses |
 | :--- | :--- | :--- | :--- |
 | **Administrator** | `admin` | `password123` | Akses penuh ke seluruh fitur & statistik dashboard |
-| **Petugas Pendaftaran** | `petugas` | `password123` | Master data pasien, pendaftaran kunjungan, & nomor antrean |
-| **Dokter** | `dokter` | `password123` | rekam medis (SOAP), & resep obat |
+| **Petugas Pendaftaran** | `petugas` | `password123` | Data pasien, pendaftaran kunjungan, & nomor antrean |
+| **Dokter** | `dokter` | `password123` | Antrean, rekam medis (SOAP), & resep obat |
 
 ---
 
