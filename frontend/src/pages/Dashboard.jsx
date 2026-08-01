@@ -7,7 +7,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
-  // 1. State Statistik Dashboard
+  // State Statistik Dashboard
   const [stats, setStats] = useState({
     totalPasien: 0,
     pendaftaranHariIni: 0,
@@ -18,10 +18,13 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
-    // Ambil data user dari localStorage untuk otorisasi role
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (e) {
+        console.error("Error parsing user data", e);
+      }
     }
 
     const fetchStats = async () => {
@@ -34,7 +37,7 @@ const Dashboard = () => {
             pendaftaranHariIni: data.total_patients_today || 0,
             antreanHariIni: data.total_queues_today || 0,
             pasienMenunggu: data.total_waiting || 0,
-            total_calling: data.total_calling || 0, // ✅ FIX: Ambil data total_calling dari API
+            total_calling: data.total_calling || 0,
             pasienSelesai: data.total_completed || 0,
           });
         }
@@ -46,125 +49,147 @@ const Dashboard = () => {
     fetchStats();
   }, []);
 
-  // 2. Variabel Pengecekan Hak Akses Role
-  const role = user?.role;
-  const isAdmin = role === "Admin";
-  const isPetugas = role === "Petugas Pendaftaran";
-  const isDokter = role === "Dokter";
+  const role = user?.role || "User";
 
   return (
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: "#f4f6f9",
-        fontFamily: "sans-serif",
+        backgroundColor: "#f8fafc",
+        fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       }}
     >
       <Navbar />
 
-      <main style={{ padding: "32px", maxWidth: "1200px", margin: "0 auto" }}>
-        <h1 style={{ color: "#1e293b", marginBottom: "24px" }}>
-          Dashboard ({role || "User"})
-        </h1>
+      <main style={{ padding: "32px 24px", maxWidth: "1200px", margin: "0 auto" }}>
+        {/* Header Dashboard */}
+        <div style={{ marginBottom: "28px" }}>
+          <h1
+            style={{
+              color: "#0f172a",
+              fontSize: "24px",
+              fontWeight: "700",
+              margin: "0 0 6px 0",
+            }}
+          >
+            Dashboard Utama
+          </h1>
+          <p style={{ margin: 0, color: "#64748b", fontSize: "14px" }}>
+            Selamat datang kembali, <strong style={{ color: "#1e293b" }}>{user?.name || "Pengguna"}</strong>
+          </p>
+        </div>
 
-        {/* 3. Grid 6 Cards Indikator Statistik */}
+        {/* Grid 6 Stat Cards (3 Kolom x 2 Baris Simetris) */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-            gap: "16px",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gap: "20px",
             marginBottom: "32px",
           }}
         >
-          {/* Card 1: Total Pasien */}
-          <div style={cardStyle("#eff6ff", "#2563eb")}>
-            <h3 style={cardTitleStyle("#1e40af")}>TOTAL PASIEN</h3>
-            <p style={cardValueStyle("#1e3a8a")}>{stats.totalPasien}</p>
-          </div>
+          <CardItem
+            title="TOTAL PASIEN"
+            value={stats.totalPasien}
+            badge="Master Data"
+            color="#2563eb"
+            bgColor="#eff6ff"
+          />
 
-          {/* Card 2: Pasien Hari Ini */}
-          <div style={cardStyle("#f0fdf4", "#16a34a")}>
-            <h3 style={cardTitleStyle("#166534")}>PASIEN HARI INI</h3>
-            <p style={cardValueStyle("#14532d")}>{stats.pendaftaranHariIni}</p>
-          </div>
+          <CardItem
+            title="PASIEN HARI INI"
+            value={stats.pendaftaranHariIni}
+            badge="Registrasi"
+            color="#16a34a"
+            bgColor="#f0fdf4"
+          />
 
-          {/* Card 3: Antrean Hari Ini */}
-          <div style={cardStyle("#f0f9ff", "#0284c7")}>
-            <h3 style={cardTitleStyle("#0369a1")}>ANTREAN HARI INI</h3>
-            <p style={cardValueStyle("#075985")}>{stats.antreanHariIni}</p>
-          </div>
+          <CardItem
+            title="ANTREAN HARI INI"
+            value={stats.antreanHariIni}
+            badge="Kunjungan"
+            color="#0284c7"
+            bgColor="#f0f9ff"
+          />
 
-          {/* Card 4: Pasien Menunggu */}
-          <div style={cardStyle("#fff7ed", "#ea580c")}>
-            <h3 style={cardTitleStyle("#9a3412")}>PASIEN MENUNGGU</h3>
-            <p style={cardValueStyle("#7c2d12")}>{stats.pasienMenunggu}</p>
-          </div>
+          <CardItem
+            title="PASIEN MENUNGGU"
+            value={stats.pasienMenunggu}
+            badge="Antrean"
+            color="#ea580c"
+            bgColor="#fff7ed"
+          />
 
-          {/* Card 5: Sedang Dilayani (Diselaraskan dengan style card lainnya) */}
-          <div style={cardStyle("#fefce8", "#ca8a04")}>
-            <h3 style={cardTitleStyle("#854d0e")}>SEDANG DILAYANI</h3>
-            <p style={cardValueStyle("#713f12")}>{stats.total_calling}</p>
-          </div>
+          <CardItem
+            title="SEDANG DILAYANI"
+            value={stats.total_calling}
+            badge="Pemeriksaan"
+            color="#ca8a04"
+            bgColor="#fefce8"
+          />
 
-          {/* Card 6: Selesai Dilayani */}
-          <div style={cardStyle("#ecfdf5", "#059669")}>
-            <h3 style={cardTitleStyle("#065f46")}>SELESAI DILAYANI</h3>
-            <p style={cardValueStyle("#064e3b")}>{stats.pasienSelesai}</p>
-          </div>
+          <CardItem
+            title="SELESAI DILAYANI"
+            value={stats.pasienSelesai}
+            badge="Selesai"
+            color="#059669"
+            bgColor="#ecfdf5"
+          />
         </div>
 
-        {/* 4. Aksi Cepat Menu Berdasarkan Role */}
+        {/* Seksi Deskripsi Alur Kerja Sistem */}
         <div
           style={{
             backgroundColor: "#ffffff",
-            padding: "24px",
-            borderRadius: "8px",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+            padding: "28px",
+            borderRadius: "12px",
+            border: "1px solid #e2e8f0",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
           }}
         >
-          <h3 style={{ marginTop: 0, color: "#1e293b", marginBottom: "16px" }}>
-            Aksi Cepat Menu
+          <h3
+            style={{
+              margin: "0 0 10px 0",
+              color: "#0f172a",
+              fontSize: "16px",
+              fontWeight: "700",
+            }}
+          >
+            📋 Panduan Alur Operasional MiniClinic
           </h3>
-          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-            {/* Data Pasien: Admin, Petugas, Dokter */}
-            {(isAdmin || isPetugas || isDokter) && (
-              <button
-                style={actionButtonStyle("#0d9488")}
-                onClick={() => navigate("/patients")}
-              >
-                Data Pasien
-              </button>
-            )}
+          <p
+            style={{
+              margin: "0 0 20px 0",
+              color: "#64748b",
+              fontSize: "14px",
+              lineHeight: "1.6",
+            }}
+          >
+            Sistem terintegrasi ini dirancang untuk mempermudah alur pelayanan medis dari pendaftaran hingga rekam medis pasien. Silakan gunakan menu di navigasi atas sesuai tugas utama Anda:
+          </p>
 
-            {/* Semua Pendaftaran: Admin, Petugas Pendaftaran */}
-            {(isAdmin || isPetugas) && (
-              <button
-                style={actionButtonStyle("#0284c7")}
-                onClick={() => navigate("/registrations")}
-              >
-                Semua Pendaftaran
-              </button>
-            )}
-
-            {/* Manajemen Antrean: Admin, Petugas, Dokter */}
-            {(isAdmin || isPetugas || isDokter) && (
-              <button
-                style={actionButtonStyle("#d97706")}
-                onClick={() => navigate("/queues")}
-              >
-                Manajemen Antrean
-              </button>
-            )}
-
-            {/* Riwayat Rekam Medis: Admin, Dokter */}
-            {(isAdmin || isDokter) && (
-              <button
-                style={actionButtonStyle("#0284c7")}
-                onClick={() => navigate("/medical-records")}
-              >
-                Riwayat Rekam Medis
-              </button>
-            )}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+              gap: "16px",
+            }}
+          >
+            <WorkflowStep
+              step="1"
+              title="Pendaftaran Pasien"
+              description="Petugas mendaftarkan pasien baru/lama dan secara otomatis mencetak nomor antrean hari ini."
+            />
+            <WorkflowStep
+              step="2"
+              title="Pemanggilan Antrean"
+              description="Petugas/Dokter memanggil pasien yang sedang menunggu sesuai dengan nomor urut antrean."
+            />
+            <WorkflowStep
+              step="3"
+              title="Pemeriksaan & Rekam Medis"
+              description="Dokter melakukan diagnosis, memberikan tindakan medis, serta mencatat hasil rekam medis pasien."
+            />
           </div>
         </div>
       </main>
@@ -172,39 +197,85 @@ const Dashboard = () => {
   );
 };
 
-// Reusable Styles
-const cardStyle = (bgColor, borderColor) => ({
-  backgroundColor: bgColor || "#f8f9fa",
-  borderLeft: `5px solid ${borderColor}`,
-  borderRadius: "8px",
-  padding: "15px",
-  boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
-  textAlign: "center",
-});
+// Sub-komponen Card Statistik
+const CardItem = ({ title, value, badge, color, bgColor }) => {
+  return (
+    <div
+      style={{
+        backgroundColor: "#ffffff",
+        borderRadius: "12px",
+        padding: "20px 22px",
+        border: "1px solid #e2e8f0",
+        borderLeft: `5px solid ${color}`,
+        boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+      }}
+    >
+      <div>
+        <div style={{ fontSize: "11px", fontWeight: "700", color: "#64748b", letterSpacing: "0.05em", marginBottom: "8px" }}>
+          {title}
+        </div>
+        <div style={{ fontSize: "32px", fontWeight: "800", color: "#0f172a", lineHeight: "1" }}>
+          {value}
+        </div>
+      </div>
 
-const cardTitleStyle = (color) => ({
-  margin: "0 0 8px 0",
-  fontSize: "12px",
-  fontWeight: "bold",
-  color: color,
-});
+      <span
+        style={{
+          backgroundColor: bgColor,
+          color: color,
+          fontSize: "12px",
+          fontWeight: "600",
+          padding: "4px 10px",
+          borderRadius: "16px",
+          border: `1px solid ${color}20`,
+        }}
+      >
+        {badge}
+      </span>
+    </div>
+  );
+};
 
-const cardValueStyle = (color) => ({
-  margin: 0,
-  fontSize: "28px",
-  fontWeight: "bold",
-  color: color,
-});
-
-const actionButtonStyle = (bgColor) => ({
-  backgroundColor: bgColor,
-  color: "#ffffff",
-  border: "none",
-  padding: "12px 20px",
-  borderRadius: "8px",
-  cursor: "pointer",
-  fontWeight: "600",
-  fontSize: "14px",
-});
+// Sub-komponen Panduan Alur
+const WorkflowStep = ({ step, title, description }) => {
+  return (
+    <div
+      style={{
+        backgroundColor: "#f8fafc",
+        padding: "16px",
+        borderRadius: "8px",
+        border: "1px solid #f1f5f9",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
+        <span
+          style={{
+            backgroundColor: "#2563eb",
+            color: "#ffffff",
+            fontSize: "12px",
+            fontWeight: "700",
+            width: "22px",
+            height: "22px",
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {step}
+        </span>
+        <h4 style={{ margin: 0, color: "#1e293b", fontSize: "14px", fontWeight: "600" }}>
+          {title}
+        </h4>
+      </div>
+      <p style={{ margin: 0, color: "#64748b", fontSize: "13px", lineHeight: "1.5" }}>
+        {description}
+      </p>
+    </div>
+  );
+};
 
 export default Dashboard;

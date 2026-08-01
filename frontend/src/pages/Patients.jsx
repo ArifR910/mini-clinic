@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import Navbar from "./Navbar";
 
 const Patients = () => {
-  const navigate = useNavigate();
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
@@ -16,14 +15,17 @@ const Patients = () => {
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (e) {
+        console.error("Error parsing user data", e);
+      }
     }
   }, []);
 
   const role = user?.role;
   const isAdmin = role === "Admin";
   const isPetugas = role === "Petugas Pendaftaran";
-  const isDokter = role === "Dokter";
 
   // State Modal Detail
   const [selectedPatient, setSelectedPatient] = useState(null);
@@ -151,496 +153,451 @@ const Patients = () => {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      {/* Tombol Kembali ke Dashboard */}
-      <button
-        onClick={() => navigate("/dashboard")}
-        style={{
-          marginBottom: "15px",
-          padding: "6px 12px",
-          cursor: "pointer",
-          backgroundColor: "#6c757d",
-          color: "#fff",
-          border: "none",
-          borderRadius: "4px",
-        }}
-      >
-        ← Kembali
-      </button>
-      <h2>Manajemen Pasien</h2>
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#f8fafc",
+        fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      }}
+    >
+      <Navbar />
 
-      {/* Baris Pencarian & Tombol Tambah */}
-      <div
-        style={{
-          display: "flex",
-          justify: "space-between",
-          marginBottom: "15px",
-        }}
-      >
-        <input
-          type="text"
-          placeholder="Cari nama, NIK, atau No. RM..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
+      <main style={{ padding: "32px 24px", maxWidth: "1200px", margin: "0 auto" }}>
+        {/* Container Utama */}
+        <div
+          style={{
+            backgroundColor: "#ffffff",
+            borderRadius: "16px",
+            border: "1px solid #e2e8f0",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+            padding: "24px",
           }}
-          style={{ padding: "8px", width: "300px" }}
-        />
-
-        {/* Tombol Tambah Pasien Baru: Hanya untuk Admin & Petugas Pendaftaran */}
-        {(isAdmin || isPetugas) && (
-          <button
-            onClick={() => setShowModal(true)}
+        >
+          {/* Header & Controls */}
+          <div
             style={{
-              padding: "8px 16px",
-              backgroundColor: "#28a745",
-              color: "#fff",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "16px",
+              marginBottom: "24px",
             }}
           >
-            + Tambah Pasien Baru
-          </button>
-        )}
-      </div>
+            <div>
+              <h2
+                style={{
+                  margin: "0 0 4px 0",
+                  fontSize: "20px",
+                  fontWeight: "700",
+                  color: "#0f172a",
+                }}
+              >
+                Data Pasien
+              </h2>
+              <p style={{ margin: 0, fontSize: "13px", color: "#64748b" }}>
+                Kelola pendaftaran dan riwayat informasi data master pasien.
+              </p>
+            </div>
 
-      {/* Tabel Pasien */}
-      {loading ? (
-        <p>Memuat data pasien...</p>
-      ) : (
-        <table
-          border="1"
-          cellPadding="10"
-          cellSpacing="0"
-          style={{ width: "100%", borderCollapse: "collapse" }}
-        >
-          <thead>
-            <tr style={{ backgroundColor: "#f2f2f2", color: "#333" }}>
-              <th>No. RM</th>
-              <th>NIK</th>
-              <th>Nama Pasien</th>
-              <th>Tgl Lahir</th>
-              <th>L/P</th>
-              <th>No. HP</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {patients.length > 0 ? (
-              patients.map((pt) => (
-                <tr key={pt.id}>
-                  <td>
-                    <strong>{pt.mr_number}</strong>
-                  </td>
-                  <td>{pt.nik}</td>
-                  <td>{pt.name}</td>
-                  <td>{pt.birth_date ? pt.birth_date.split("T")[0] : "-"}</td>
-                  <td>{pt.gender}</td>
-                  <td>{pt.phone || "-"}</td>
-                  <td>
-                    <div style={{ display: "flex", gap: "5px" }}>
-                      {/* Tombol Detail: Semua Role Bisa Mengakses (Termasuk Dokter) */}
-                      <button
-                        onClick={() => {
-                          setSelectedPatient(pt);
-                          setShowDetailModal(true);
+            <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+              <input
+                type="text"
+                placeholder="🔍 Cari nama, NIK, No. RM..."
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+                style={{
+                  padding: "10px 14px",
+                  borderRadius: "8px",
+                  border: "1px solid #cbd5e1",
+                  fontSize: "13px",
+                  outline: "none",
+                  width: "260px",
+                  backgroundColor: "#f8fafc",
+                  color: "#0f172a",
+                }}
+              />
+
+              {(isAdmin || isPetugas) && (
+                <button
+                  onClick={() => setShowModal(true)}
+                  style={{
+                    backgroundColor: "#16a34a",
+                    color: "#ffffff",
+                    border: "none",
+                    padding: "10px 16px",
+                    borderRadius: "8px",
+                    fontWeight: "600",
+                    fontSize: "13px",
+                    cursor: "pointer",
+                    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+                  }}
+                >
+                  + Tambah Pasien Baru
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Tabel Pasien Modern */}
+          {loading ? (
+            <div style={{ textAlign: "center", padding: "40px", color: "#64748b", fontSize: "14px" }}>
+              Memuat data pasien...
+            </div>
+          ) : (
+            <div style={{ overflowX: "auto", borderRadius: "8px", border: "1px solid #f1f5f9" }}>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  textAlign: "left",
+                  fontSize: "13px",
+                }}
+              >
+                <thead>
+                  <tr
+                    style={{
+                      backgroundColor: "#f8fafc",
+                      borderBottom: "2px solid #e2e8f0",
+                      color: "#475569",
+                      fontWeight: "600",
+                    }}
+                  >
+                    <th style={{ padding: "12px 16px" }}>No. RM</th>
+                    <th style={{ padding: "12px 16px" }}>NIK</th>
+                    <th style={{ padding: "12px 16px" }}>Nama Pasien</th>
+                    <th style={{ padding: "12px 16px" }}>Tgl Lahir</th>
+                    <th style={{ padding: "12px 16px" }}>L/P</th>
+                    <th style={{ padding: "12px 16px" }}>No. HP</th>
+                    <th style={{ padding: "12px 16px", textAlign: "center" }}>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {patients.length > 0 ? (
+                    patients.map((pt) => (
+                      <tr
+                        key={pt.id}
+                        style={{
+                          borderBottom: "1px solid #f1f5f9",
+                          transition: "background-color 0.15s ease",
                         }}
-                        style={{ cursor: "pointer", padding: "4px 8px" }}
                       >
-                        Detail
-                      </button>
+                        <td style={{ padding: "12px 16px" }}>
+                          <span
+                            style={{
+                              fontWeight: "700",
+                              color: "#2563eb",
+                              backgroundColor: "#eff6ff",
+                              padding: "4px 8px",
+                              borderRadius: "6px",
+                              fontSize: "12px",
+                            }}
+                          >
+                            {pt.mr_number}
+                          </span>
+                        </td>
+                        <td style={{ padding: "12px 16px", color: "#334155" }}>{pt.nik}</td>
+                        <td style={{ padding: "12px 16px", fontWeight: "600", color: "#0f172a" }}>
+                          {pt.name}
+                        </td>
+                        <td style={{ padding: "12px 16px", color: "#64748b" }}>
+                          {pt.birth_date ? pt.birth_date.split("T")[0] : "-"}
+                        </td>
+                        <td style={{ padding: "12px 16px" }}>
+                          <span
+                            style={{
+                              backgroundColor: pt.gender === "L" ? "#e0f2fe" : "#fce7f3",
+                              color: pt.gender === "L" ? "#0369a1" : "#be185d",
+                              fontWeight: "700",
+                              fontSize: "11px",
+                              padding: "2px 8px",
+                              borderRadius: "12px",
+                            }}
+                          >
+                            {pt.gender}
+                          </span>
+                        </td>
+                        <td style={{ padding: "12px 16px", color: "#64748b" }}>{pt.phone || "-"}</td>
+                        <td style={{ padding: "12px 16px", textAlign: "center" }}>
+                          <div style={{ display: "flex", gap: "6px", justifyContent: "center" }}>
+                            <button
+                              onClick={() => {
+                                setSelectedPatient(pt);
+                                setShowDetailModal(true);
+                              }}
+                              style={actionBtnStyle("#f1f5f9", "#334155")}
+                            >
+                              Detail
+                            </button>
 
-                      {/* Tombol Edit: Hanya Admin & Petugas Pendaftaran */}
-                      {(isAdmin || isPetugas) && (
-                        <button
-                          onClick={() => handleOpenEdit(pt)}
-                          style={{
-                            backgroundColor: "#f59e0b",
-                            color: "#fff",
-                            border: "none",
-                            padding: "4px 8px",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          Edit
-                        </button>
-                      )}
+                            {(isAdmin || isPetugas) && (
+                              <button
+                                onClick={() => handleOpenEdit(pt)}
+                                style={actionBtnStyle("#fef3c7", "#d97706")}
+                              >
+                                Edit
+                              </button>
+                            )}
 
-                      {/* Tombol Hapus: Hanya Admin */}
-                      {isAdmin && (
-                        <button
-                          onClick={() => handleDelete(pt.id, pt.name)}
-                          style={{
-                            backgroundColor: "#ef4444",
-                            color: "#fff",
-                            border: "none",
-                            padding: "4px 8px",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          Hapus
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" style={{ textAlign: "center" }}>
-                  Tidak ada data pasien
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      )}
+                            {isAdmin && (
+                              <button
+                                onClick={() => handleDelete(pt.id, pt.name)}
+                                style={actionBtnStyle("#fee2e2", "#dc2626")}
+                              >
+                                Hapus
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: "center", padding: "32px", color: "#94a3b8" }}>
+                        Tidak ada data pasien yang ditemukan.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
 
-      {/* Pagination */}
-      <div
-        style={{
-          marginTop: "15px",
-          display: "flex",
-          gap: "10px",
-          alignItems: "center",
-        }}
-      >
-        <button disabled={page <= 1} onClick={() => setPage(page - 1)}>
-          Prev
-        </button>
-        <span>
-          Halaman {page} dari {totalPages}
-        </span>
-        <button disabled={page >= totalPages} onClick={() => setPage(page + 1)}>
-          Next
-        </button>
-      </div>
-
-      {/* Modal Registrasi Pasien Baru */}
-      {showModal && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
+          {/* Pagination Footer */}
           <div
             style={{
-              backgroundColor: "#fff",
-              color: "#333",
-              padding: "20px",
-              borderRadius: "8px",
-              width: "400px",
+              marginTop: "20px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              fontSize: "13px",
+              color: "#64748b",
             }}
           >
-            <h3>Form Registrasi Pasien Baru</h3>
-            {errorMsg && <p style={{ color: "red" }}>{errorMsg}</p>}
-            <form onSubmit={handleSubmit}>
-              <div style={{ marginBottom: "10px" }}>
-                <label>NIK *</label>
-                <input
-                  type="text"
-                  name="nik"
-                  value={formData.nik}
-                  onChange={handleChange}
-                  required
-                  style={{ width: "100%", padding: "6px" }}
-                />
-              </div>
-              <div style={{ marginBottom: "10px" }}>
-                <label>Nama Lengkap *</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  style={{ width: "100%", padding: "6px" }}
-                />
-              </div>
-              <div style={{ marginBottom: "10px" }}>
-                <label>Tanggal Lahir *</label>
-                <input
-                  type="date"
-                  name="birth_date"
-                  value={formData.birth_date}
-                  onChange={handleChange}
-                  required
-                  style={{ width: "100%", padding: "6px" }}
-                />
-              </div>
-              <div style={{ marginBottom: "10px" }}>
-                <label>Jenis Kelamin *</label>
-                <select
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleChange}
-                  style={{ width: "100%", padding: "6px" }}
-                >
-                  <option value="L">Laki-laki</option>
-                  <option value="P">Perempuan</option>
-                </select>
-              </div>
-              <div style={{ marginBottom: "10px" }}>
-                <label>No. HP</label>
-                <input
-                  type="text"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  style={{ width: "100%", padding: "6px" }}
-                />
-              </div>
-              <div style={{ marginBottom: "10px" }}>
-                <label>Alamat</label>
-                <textarea
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  style={{ width: "100%", padding: "6px" }}
-                ></textarea>
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  justify: "flex-end",
-                  gap: "10px",
-                }}
-              >
-                <button type="button" onClick={() => setShowModal(false)}>
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  style={{
-                    backgroundColor: "#007bff",
-                    color: "#fff",
-                    border: "none",
-                    padding: "6px 12px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Simpan
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Edit Pasien */}
-      {showEditModal && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "#fff",
-              color: "#333",
-              padding: "20px",
-              borderRadius: "8px",
-              width: "400px",
-            }}
-          >
-            <h3>Edit Data Pasien</h3>
-            {editErrorMsg && <p style={{ color: "red" }}>{editErrorMsg}</p>}
-            <form onSubmit={handleUpdateSubmit}>
-              <div style={{ marginBottom: "10px" }}>
-                <label>NIK *</label>
-                <input
-                  type="text"
-                  value={editFormData.nik}
-                  onChange={(e) =>
-                    setEditFormData({ ...editFormData, nik: e.target.value })
-                  }
-                  required
-                  style={{ width: "100%", padding: "6px" }}
-                />
-              </div>
-              <div style={{ marginBottom: "10px" }}>
-                <label>Nama Lengkap *</label>
-                <input
-                  type="text"
-                  value={editFormData.name}
-                  onChange={(e) =>
-                    setEditFormData({ ...editFormData, name: e.target.value })
-                  }
-                  required
-                  style={{ width: "100%", padding: "6px" }}
-                />
-              </div>
-              <div style={{ marginBottom: "10px" }}>
-                <label>Tanggal Lahir *</label>
-                <input
-                  type="date"
-                  value={editFormData.birth_date}
-                  onChange={(e) =>
-                    setEditFormData({
-                      ...editFormData,
-                      birth_date: e.target.value,
-                    })
-                  }
-                  required
-                  style={{ width: "100%", padding: "6px" }}
-                />
-              </div>
-              <div style={{ marginBottom: "10px" }}>
-                <label>Jenis Kelamin *</label>
-                <select
-                  value={editFormData.gender}
-                  onChange={(e) =>
-                    setEditFormData({ ...editFormData, gender: e.target.value })
-                  }
-                  style={{ width: "100%", padding: "6px" }}
-                >
-                  <option value="L">Laki-laki</option>
-                  <option value="P">Perempuan</option>
-                </select>
-              </div>
-              <div style={{ marginBottom: "10px" }}>
-                <label>No. HP</label>
-                <input
-                  type="text"
-                  value={editFormData.phone}
-                  onChange={(e) =>
-                    setEditFormData({ ...editFormData, phone: e.target.value })
-                  }
-                  style={{ width: "100%", padding: "6px" }}
-                />
-              </div>
-              <div style={{ marginBottom: "10px" }}>
-                <label>Alamat</label>
-                <textarea
-                  value={editFormData.address}
-                  onChange={(e) =>
-                    setEditFormData({
-                      ...editFormData,
-                      address: e.target.value,
-                    })
-                  }
-                  style={{ width: "100%", padding: "6px" }}
-                ></textarea>
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  justify: "flex-end",
-                  gap: "10px",
-                }}
-              >
-                <button type="button" onClick={() => setShowEditModal(false)}>
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  style={{
-                    backgroundColor: "#2563eb",
-                    color: "#fff",
-                    border: "none",
-                    padding: "6px 12px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Simpan Perubahan
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Detail Pasien */}
-      {showDetailModal && selectedPatient && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "#fff",
-              color: "#333",
-              padding: "20px",
-              borderRadius: "8px",
-              width: "400px",
-            }}
-          >
-            <h3>Detail Pasien</h3>
-            <hr style={{ marginBottom: "15px" }} />
-            <p>
-              <strong>No. RM:</strong> {selectedPatient.mr_number}
-            </p>
-            <p>
-              <strong>NIK:</strong> {selectedPatient.nik}
-            </p>
-            <p>
-              <strong>Nama:</strong> {selectedPatient.name}
-            </p>
-            <p>
-              <strong>Tgl Lahir:</strong>{" "}
-              {selectedPatient.birth_date
-                ? selectedPatient.birth_date.split("T")[0]
-                : "-"}
-            </p>
-            <p>
-              <strong>Jenis Kelamin:</strong>{" "}
-              {selectedPatient.gender === "L" ? "Laki-laki" : "Perempuan"}
-            </p>
-            <p>
-              <strong>No. HP:</strong> {selectedPatient.phone || "-"}
-            </p>
-            <p>
-              <strong>Alamat:</strong> {selectedPatient.address || "-"}
-            </p>
-
-            <div
-              style={{
-                display: "flex",
-                justify: "flex-end",
-                marginTop: "15px",
-              }}
-            >
+            <span>
+              Halaman <strong>{page}</strong> dari <strong>{totalPages}</strong>
+            </span>
+            <div style={{ display: "flex", gap: "8px" }}>
               <button
-                onClick={() => setShowDetailModal(false)}
-                style={{ padding: "6px 12px", cursor: "pointer" }}
+                disabled={page <= 1}
+                onClick={() => setPage(page - 1)}
+                style={paginationBtnStyle(page <= 1)}
               >
-                Tutup
+                ← Prev
+              </button>
+              <button
+                disabled={page >= totalPages}
+                onClick={() => setPage(page + 1)}
+                style={paginationBtnStyle(page >= totalPages)}
+              >
+                Next →
               </button>
             </div>
           </div>
         </div>
+      </main>
+
+      {/* MODAL REGISTRASI PASIEN BARU */}
+      {showModal && (
+        <ModalOverlay onClose={() => setShowModal(false)}>
+          <ModalHeader title="Form Registrasi Pasien Baru" onClose={() => setShowModal(false)} />
+          {errorMsg && <ErrorMessage text={errorMsg} />}
+          <form onSubmit={handleSubmit}>
+            <FormInput label="NIK *" type="text" name="nik" value={formData.nik} onChange={handleChange} required />
+            <FormInput label="Nama Lengkap *" type="text" name="name" value={formData.name} onChange={handleChange} required />
+            <FormInput label="Tanggal Lahir *" type="date" name="birth_date" value={formData.birth_date} onChange={handleChange} required />
+            
+            <div style={{ marginBottom: "14px" }}>
+              <label style={labelStyle}>Jenis Kelamin *</label>
+              <select name="gender" value={formData.gender} onChange={handleChange} style={inputStyle}>
+                <option value="L">Laki-laki</option>
+                <option value="P">Perempuan</option>
+              </select>
+            </div>
+
+            <FormInput label="No. HP" type="text" name="phone" value={formData.phone} onChange={handleChange} />
+            
+            <div style={{ marginBottom: "20px" }}>
+              <label style={labelStyle}>Alamat</label>
+              <textarea name="address" value={formData.address} onChange={handleChange} style={{ ...inputStyle, minHeight: "60px", resize: "vertical" }} />
+            </div>
+
+            <ModalActions onCancel={() => setShowModal(false)} submitText="Simpan Pasien" />
+          </form>
+        </ModalOverlay>
+      )}
+
+      {/* MODAL EDIT PASIEN */}
+      {showEditModal && (
+        <ModalOverlay onClose={() => setShowEditModal(false)}>
+          <ModalHeader title="Edit Data Pasien" onClose={() => setShowEditModal(false)} />
+          {editErrorMsg && <ErrorMessage text={editErrorMsg} />}
+          <form onSubmit={handleUpdateSubmit}>
+            <FormInput
+              label="NIK *"
+              type="text"
+              value={editFormData.nik}
+              onChange={(e) => setEditFormData({ ...editFormData, nik: e.target.value })}
+              required
+            />
+            <FormInput
+              label="Nama Lengkap *"
+              type="text"
+              value={editFormData.name}
+              onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+              required
+            />
+            <FormInput
+              label="Tanggal Lahir *"
+              type="date"
+              value={editFormData.birth_date}
+              onChange={(e) => setEditFormData({ ...editFormData, birth_date: e.target.value })}
+              required
+            />
+
+            <div style={{ marginBottom: "14px" }}>
+              <label style={labelStyle}>Jenis Kelamin *</label>
+              <select
+                value={editFormData.gender}
+                onChange={(e) => setEditFormData({ ...editFormData, gender: e.target.value })}
+                style={inputStyle}
+              >
+                <option value="L">Laki-laki</option>
+                <option value="P">Perempuan</option>
+              </select>
+            </div>
+
+            <FormInput
+              label="No. HP"
+              type="text"
+              value={editFormData.phone}
+              onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
+            />
+
+            <div style={{ marginBottom: "20px" }}>
+              <label style={labelStyle}>Alamat</label>
+              <textarea
+                value={editFormData.address}
+                onChange={(e) => setEditFormData({ ...editFormData, address: e.target.value })}
+                style={{ ...inputStyle, minHeight: "60px", resize: "vertical" }}
+              />
+            </div>
+
+            <ModalActions onCancel={() => setShowEditModal(false)} submitText="Simpan Perubahan" />
+          </form>
+        </ModalOverlay>
+      )}
+
+      {/* MODAL DETAIL PASIEN */}
+      {showDetailModal && selectedPatient && (
+        <ModalOverlay onClose={() => setShowDetailModal(false)}>
+          <ModalHeader title="Detail Pasien" onClose={() => setShowDetailModal(false)} />
+          <div style={{ fontSize: "14px", display: "flex", flexDirection: "column", gap: "10px", color: "#334155" }}>
+            <DetailRow label="No. Rekam Medis" value={selectedPatient.mr_number} isHighlight />
+            <DetailRow label="NIK" value={selectedPatient.nik} />
+            <DetailRow label="Nama Lengkap" value={selectedPatient.name} />
+            <DetailRow label="Tanggal Lahir" value={selectedPatient.birth_date ? selectedPatient.birth_date.split("T")[0] : "-"} />
+            <DetailRow label="Jenis Kelamin" value={selectedPatient.gender === "L" ? "Laki-laki" : "Perempuan"} />
+            <DetailRow label="No. Handphone" value={selectedPatient.phone || "-"} />
+            <DetailRow label="Alamat Tempat Tinggal" value={selectedPatient.address || "-"} />
+          </div>
+
+          <div style={{ marginTop: "24px", display: "flex", justifyContent: "flex-end" }}>
+            <button onClick={() => setShowDetailModal(false)} style={cancelBtnStyle}>
+              Tutup
+            </button>
+          </div>
+        </ModalOverlay>
       )}
     </div>
   );
 };
+
+/* --- SUB-KOMPONEN STYLED & MODULAR --- */
+
+const ModalOverlay = ({ children, onClose }) => (
+  <div
+    onClick={onClose}
+    style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(15, 23, 42, 0.5)",
+      backdropFilter: "blur(4px)",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 100,
+      padding: "16px",
+    }}
+  >
+    <div
+      onClick={(e) => e.stopPropagation()}
+      style={{
+        backgroundColor: "#ffffff",
+        borderRadius: "16px",
+        padding: "24px",
+        width: "100%",
+        maxWidth: "460px",
+        boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+      }}
+    >
+      {children}
+    </div>
+  </div>
+);
+
+const ModalHeader = ({ title, onClose }) => (
+  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "18px" }}>
+    <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "#0f172a" }}>{title}</h3>
+    <button onClick={onClose} style={{ background: "none", border: "none", fontSize: "18px", cursor: "pointer", color: "#94a3b8" }}>
+      ✕
+    </button>
+  </div>
+);
+
+const FormInput = ({ label, type, name, value, onChange, required = false }) => (
+  <div style={{ marginBottom: "14px" }}>
+    <label style={labelStyle}>{label}</label>
+    <input type={type} name={name} value={value} onChange={onChange} required={required} style={inputStyle} />
+  </div>
+);
+
+const DetailRow = ({ label, value, isHighlight = false }) => (
+  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #f1f5f9", paddingBottom: "8px" }}>
+    <span style={{ color: "#64748b" }}>{label}</span>
+    <span style={{ fontWeight: isHighlight ? "700" : "600", color: isHighlight ? "#2563eb" : "#0f172a" }}>{value}</span>
+  </div>
+);
+
+const ErrorMessage = ({ text }) => (
+  <div style={{ backgroundColor: "#fef2f2", color: "#dc2626", padding: "10px 12px", borderRadius: "8px", fontSize: "13px", marginBottom: "14px" }}>
+    ⚠️ {text}
+  </div>
+);
+
+const ModalActions = ({ onCancel, submitText }) => (
+  <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "20px" }}>
+    <button type="button" onClick={onCancel} style={cancelBtnStyle}>
+      Batal
+    </button>
+    <button type="submit" style={submitBtnStyle}>
+      {submitText}
+    </button>
+  </div>
+);
+
+/* --- HELPER STYLES --- */
+const labelStyle = { display: "block", fontSize: "12px", fontWeight: "600", color: "#475569", marginBottom: "6px" };
+const inputStyle = { width: "100%", padding: "9px 12px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "13px", outline: "none", boxSizing: "border-box" };
+const actionBtnStyle = (bgColor, textColor) => ({ backgroundColor: bgColor, color: textColor, border: "none", padding: "6px 12px", borderRadius: "6px", cursor: "pointer", fontWeight: "600", fontSize: "12px" });
+const paginationBtnStyle = (disabled) => ({ padding: "6px 14px", borderRadius: "6px", border: "1px solid #cbd5e1", backgroundColor: disabled ? "#f1f5f9" : "#ffffff", color: disabled ? "#94a3b8" : "#334155", cursor: disabled ? "not-allowed" : "pointer", fontSize: "12px", fontWeight: "600" });
+const cancelBtnStyle = { backgroundColor: "#f1f5f9", color: "#475569", border: "none", padding: "9px 16px", borderRadius: "8px", cursor: "pointer", fontWeight: "600", fontSize: "13px" };
+const submitBtnStyle = { backgroundColor: "#2563eb", color: "#ffffff", border: "none", padding: "9px 16px", borderRadius: "8px", cursor: "pointer", fontWeight: "600", fontSize: "13px" };
 
 export default Patients;
