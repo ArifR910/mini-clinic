@@ -11,6 +11,7 @@ import Patients from "./pages/Patients";
 import Registrations from "./pages/Registrations";
 import Queues from "./pages/Queues";
 import MedicalRecord from "./pages/MedicalRecord";
+import PatientHistory from "./pages/PatientHistory";
 import { AuthProvider } from "./context/AuthContext";
 
 const ProtectedRoute = ({ children }) => {
@@ -66,6 +67,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <MedicalRecord />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/medical-records"
+            element={
+              <ProtectedRoute>
+                <PatientHistory />
               </ProtectedRoute>
             }
           />

@@ -50,7 +50,7 @@ const createMedicalRecord = async (req, res) => {
         height || null,
         assessment || "-",
         plan || "-",
-      ]
+      ],
     );
 
     const medicalRecordId = recordResult.insertId;
@@ -60,12 +60,16 @@ const createMedicalRecord = async (req, res) => {
       await db.query(
         `INSERT INTO treatments (medical_record_id, treatment_name, notes) 
          VALUES (?, ?, ?)`,
-        [medicalRecordId, actions, plan || "-"]
+        [medicalRecordId, actions, plan || "-"],
       );
     }
 
     // 3. INSERT KE PRESCRIPTIONS (Resep Obat)
-    if (prescriptions && Array.isArray(prescriptions) && prescriptions.length > 0) {
+    if (
+      prescriptions &&
+      Array.isArray(prescriptions) &&
+      prescriptions.length > 0
+    ) {
       for (const item of prescriptions) {
         // Cek jika properti medicine_name / medicineName diisi
         const medicineName = item.medicine_name || item.medicineName;
@@ -78,7 +82,7 @@ const createMedicalRecord = async (req, res) => {
               medicineName,
               item.dosage || "-",
               item.instructions || item.instruction || "-",
-            ]
+            ],
           );
         }
       }
@@ -86,23 +90,66 @@ const createMedicalRecord = async (req, res) => {
 
     // 4. UPDATE STATUS ANTREAN & REGISTRASI
     if (registration_id) {
-      await db.query("UPDATE registrations SET status = 'Selesai' WHERE id = ?", [
-        registration_id,
-      ]);
-      await db.query("UPDATE queues SET status = 'Selesai' WHERE registration_id = ?", [
-        registration_id,
-      ]);
+      await db.query(
+        "UPDATE registrations SET status = 'Selesai' WHERE id = ?",
+        [registration_id],
+      );
+      await db.query(
+        "UPDATE queues SET status = 'Selesai' WHERE registration_id = ?",
+        [registration_id],
+      );
     }
 
     return sendSuccess(
       res,
       201,
       "Pemeriksaan Dokter, Tindakan & Resep berhasil disimpan!",
-      { medical_record_id: medicalRecordId }
+      { medical_record_id: medicalRecordId },
     );
   } catch (error) {
     console.error("=== ERROR MYSQL ===", error);
-    return sendError(res, 500, "Gagal menyimpan rekam medis", error.sqlMessage || error.message);
+    return sendError(
+      res,
+      500,
+      "Gagal menyimpan rekam medis",
+      error.sqlMessage || error.message,
+    );
+  }
+};
+
+const getAllMedicalRecords = async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        mr.id,
+        mr.patient_id,
+        mr.created_at,
+        mr.subjective,
+        mr.assessment,
+        mr.plan,
+        p.name AS patient_name,
+        p.mr_number,
+        GROUP_CONCAT(DISTINCT pr.medicine_name SEPARATOR ', ') AS prescription,
+        GROUP_CONCAT(DISTINCT tr.treatment_name SEPARATOR ', ') AS treatment
+      FROM medical_records mr
+      JOIN patients p ON mr.patient_id = p.id
+      LEFT JOIN prescriptions pr ON mr.id = pr.medical_record_id
+      LEFT JOIN treatments tr ON mr.id = tr.medical_record_id
+      GROUP BY mr.id
+      ORDER BY mr.created_at DESC
+    `;
+
+    const [records] = await db.query(query);
+
+    return sendSuccess(
+      res,
+      200,
+      "Berhasil mengambil seluruh data rekam medis",
+      records,
+    );
+  } catch (error) {
+    console.error("Error getAllMedicalRecords:", error);
+    return sendError(res, 500, "Gagal mengambil rekam medis", error.message);
   }
 };
 
@@ -127,7 +174,7 @@ const getPatientMedicalHistory = async (req, res) => {
       res,
       200,
       "Berhasil mengambil riwayat rekam medis pasien",
-      history
+      history,
     );
   } catch (error) {
     console.error("Error getPatientMedicalHistory:", error);
@@ -138,4 +185,5 @@ const getPatientMedicalHistory = async (req, res) => {
 module.exports = {
   createMedicalRecord,
   getPatientMedicalHistory,
+  getAllMedicalRecords,
 };
