@@ -27,8 +27,12 @@ const getDashboardStats = async (req, res) => {
             'SELECT COUNT(*) AS total_waiting FROM queues WHERE status = "Menunggu" AND DATE(created_at) = CURDATE()'
         );
 
+        const [[{ total_calling }]] = await db.query(
+            'SELECT COUNT(*) AS total_calling FROM queues WHERE status = "Dipanggil" AND DATE(created_at) = CURDATE()'
+        );
+
         const [[{ total_completed }]] = await db.query(
-            'SELECT COUNT(*) AS total_completed FROM registrations WHERE status = "Selesai" AND (DATE(visit_date) = CURDATE() OR DATE(created_at) = CURDATE())'
+            'SELECT COUNT(*) AS total_completed FROM queues WHERE status = "Selesai" AND DATE(created_at) = CURDATE()'
         );
 
         return sendSuccess(res, 200, 'Berhasil mengambil statistik dashboard', {
@@ -36,6 +40,7 @@ const getDashboardStats = async (req, res) => {
             total_patients_today,
             total_queues_today,
             total_waiting,
+            total_calling,
             total_completed
         });
     } catch (error) {

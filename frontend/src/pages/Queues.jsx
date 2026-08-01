@@ -8,6 +8,21 @@ const Queues = () => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  // 1. Ambil data User & Role saat ini
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  const role = user?.role;
+  // Cek izin akses berdasarkan role
+  const isFrontOffice = role === "Admin" || role === "Petugas Pendaftaran";
+  const isDoctor = role === "Admin" || role === "Dokter";
+
   const fetchQueues = async () => {
     setLoading(true);
     try {
@@ -97,11 +112,11 @@ const Queues = () => {
                   <td>{item.patient_name}</td>
                   <td>{item.polyclinic_name || "Poli Umum"}</td>
                   <td>
-                    {item.complaint || 
-                     item.initial_complaint || 
-                     item.registration?.complaint || 
-                     item.registration?.initial_complaint || 
-                     "-"}
+                    {item.complaint ||
+                      item.initial_complaint ||
+                      item.registration?.complaint ||
+                      item.registration?.initial_complaint ||
+                      "-"}
                   </td>
                   <td>
                     <span
@@ -126,78 +141,60 @@ const Queues = () => {
                   <td>
                     <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                       
-                      {/* 1. Status: MENUNGGU -> Hanya tampil Panggil Pasien & Batal */}
+                      {/* 1. STATUS: MENUNGGU -> Hanya Petugas Pendaftaran & Admin */}
                       {item.status === "Menunggu" && (
                         <>
-                          <button
-                            onClick={() =>
-                              handleStatusChange(item.id, "Dipanggil")
-                            }
-                            style={{
-                              backgroundColor: "#eab308",
-                              color: "#fff",
-                              border: "none",
-                              padding: "6px 10px",
-                              borderRadius: "4px",
-                              cursor: "pointer",
-                              fontWeight: "bold",
-                            }}
-                          >
-                            📢 Panggil Pasien
-                          </button>
-                          <button
-                            onClick={() => handleStatusChange(item.id, "Batal")}
-                            style={{
-                              backgroundColor: "#ef4444",
-                              color: "#fff",
-                              border: "none",
-                              padding: "6px 10px",
-                              borderRadius: "4px",
-                              cursor: "pointer",
-                            }}
-                          >
-                            ❌ Batal
-                          </button>
+                          {isFrontOffice ? (
+                            <>
+                              <button
+                                onClick={() => handleStatusChange(item.id, "Dipanggil")}
+                                style={buttonStyle("#eab308")}
+                              >
+                                📢 Panggil Pasien
+                              </button>
+                              <button
+                                onClick={() => handleStatusChange(item.id, "Batal")}
+                                style={buttonStyle("#ef4444")}
+                              >
+                                ❌ Batal
+                              </button>
+                            </>
+                          ) : (
+                            <span style={{ color: "#64748b", fontSize: "13px" }}>
+                              Menunggu Petugas
+                            </span>
+                          )}
                         </>
                       )}
 
-                      {/* 2. Status: DIPANGGIL -> Tampil tombol Periksa Pasien, Selesaikan, & Batal */}
+                      {/* 2. STATUS: DIPANGGIL -> Hanya Dokter & Admin */}
                       {item.status === "Dipanggil" && (
                         <>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              navigate(`/medical-records/new/${item.id}`);
-                            }}
-                            style={{
-                              backgroundColor: "#16a34a",
-                              color: "#ffffff",
-                              padding: "6px 12px",
-                              border: "none",
-                              borderRadius: "4px",
-                              cursor: "pointer",
-                              fontWeight: "bold",
-                            }}
-                          >
-                            🩺 Periksa Pasien
-                          </button>
-                          <button
-                            onClick={() => handleStatusChange(item.id, "Batal")}
-                            style={{
-                              backgroundColor: "#ef4444",
-                              color: "#fff",
-                              border: "none",
-                              padding: "6px 10px",
-                              borderRadius: "4px",
-                              cursor: "pointer",
-                            }}
-                          >
-                            ❌ Batal
-                          </button>
+                          {isDoctor ? (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => navigate(`/medical-records/new/${item.id}`)}
+                                style={buttonStyle("#16a34a")}
+                              >
+                                🩺 Periksa Pasien
+                              </button>
+                              <button
+                                onClick={() => handleStatusChange(item.id, "Batal")}
+                                style={buttonStyle("#ef4444")}
+                              >
+                                ❌ Batal
+                              </button>
+                            </>
+                          ) : (
+                            <span style={{ color: "#d97706", fontWeight: "600", fontSize: "13px" }}>
+                              Sedang Diperiksa Dokter...
+                            </span>
+                          )}
                         </>
                       )}
 
-                      {/* 3. Status Terakhir */}
+                      {/* 3. STATUS TERAKHIR -> Semua Role Bisa Lihat */}
                       {item.status === "Selesai" && (
                         <span style={{ color: "#16a34a", fontWeight: "500" }}>
                           ✓ Selesai Dilayani
@@ -225,5 +222,16 @@ const Queues = () => {
     </div>
   );
 };
+
+// Helper button style
+const buttonStyle = (bgColor) => ({
+  backgroundColor: bgColor,
+  color: "#fff",
+  border: "none",
+  padding: "6px 10px",
+  borderRadius: "4px",
+  cursor: "pointer",
+  fontWeight: "bold",
+});
 
 export default Queues;

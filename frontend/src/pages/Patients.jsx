@@ -10,6 +10,21 @@ const Patients = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  // State User & Role Authorization
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  const role = user?.role;
+  const isAdmin = role === "Admin";
+  const isPetugas = role === "Petugas Pendaftaran";
+  const isDokter = role === "Dokter";
+
   // State Modal Detail
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -44,7 +59,7 @@ const Patients = () => {
     setLoading(true);
     try {
       const res = await api.get(
-        `/patients?search=${search}&page=${page}&limit=5`,
+        `/patients?search=${search}&page=${page}&limit=5`
       );
       if (res.data.success) {
         setPatients(res.data.data.patients);
@@ -116,7 +131,7 @@ const Patients = () => {
       }
     } catch (err) {
       setEditErrorMsg(
-        err.response?.data?.message || "Gagal memperbarui pasien",
+        err.response?.data?.message || "Gagal memperbarui pasien"
       );
     }
   };
@@ -158,7 +173,7 @@ const Patients = () => {
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
+          justify: "space-between",
           marginBottom: "15px",
         }}
       >
@@ -172,19 +187,23 @@ const Patients = () => {
           }}
           style={{ padding: "8px", width: "300px" }}
         />
-        <button
-          onClick={() => setShowModal(true)}
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#28a745",
-            color: "#fff",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          Tambah Pasien Baru
-        </button>
+
+        {/* Tombol Tambah Pasien Baru: Hanya untuk Admin & Petugas Pendaftaran */}
+        {(isAdmin || isPetugas) && (
+          <button
+            onClick={() => setShowModal(true)}
+            style={{
+              padding: "8px 16px",
+              backgroundColor: "#28a745",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            + Tambah Pasien Baru
+          </button>
+        )}
       </div>
 
       {/* Tabel Pasien */}
@@ -222,6 +241,7 @@ const Patients = () => {
                   <td>{pt.phone || "-"}</td>
                   <td>
                     <div style={{ display: "flex", gap: "5px" }}>
+                      {/* Tombol Detail: Semua Role Bisa Mengakses (Termasuk Dokter) */}
                       <button
                         onClick={() => {
                           setSelectedPatient(pt);
@@ -231,32 +251,40 @@ const Patients = () => {
                       >
                         Detail
                       </button>
-                      <button
-                        onClick={() => handleOpenEdit(pt)}
-                        style={{
-                          backgroundColor: "#f59e0b",
-                          color: "#fff",
-                          border: "none",
-                          padding: "4px 8px",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(pt.id, pt.name)}
-                        style={{
-                          backgroundColor: "#ef4444",
-                          color: "#fff",
-                          border: "none",
-                          padding: "4px 8px",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Hapus
-                      </button>
+
+                      {/* Tombol Edit: Hanya Admin & Petugas Pendaftaran */}
+                      {(isAdmin || isPetugas) && (
+                        <button
+                          onClick={() => handleOpenEdit(pt)}
+                          style={{
+                            backgroundColor: "#f59e0b",
+                            color: "#fff",
+                            border: "none",
+                            padding: "4px 8px",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Edit
+                        </button>
+                      )}
+
+                      {/* Tombol Hapus: Hanya Admin */}
+                      {isAdmin && (
+                        <button
+                          onClick={() => handleDelete(pt.id, pt.name)}
+                          style={{
+                            backgroundColor: "#ef4444",
+                            color: "#fff",
+                            border: "none",
+                            padding: "4px 8px",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Hapus
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -386,7 +414,7 @@ const Patients = () => {
               <div
                 style={{
                   display: "flex",
-                  justifyContent: "flex-end",
+                  justify: "flex-end",
                   gap: "10px",
                 }}
               >
@@ -517,7 +545,7 @@ const Patients = () => {
               <div
                 style={{
                   display: "flex",
-                  justifyContent: "flex-end",
+                  justify: "flex-end",
                   gap: "10px",
                 }}
               >
@@ -597,7 +625,7 @@ const Patients = () => {
             <div
               style={{
                 display: "flex",
-                justifyContent: "flex-end",
+                justify: "flex-end",
                 marginTop: "15px",
               }}
             >
