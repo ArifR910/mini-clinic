@@ -29,7 +29,7 @@ const MedicalRecord = () => {
   });
 
   const [prescriptions, setPrescriptions] = useState([
-    { medicine_name: "", dosage: "", instruction: "" },
+    { medicine_name: "", dosage: "", instructions: "" },
   ]);
 
   // Helper Konversi Jenis Kelamin
@@ -133,14 +133,8 @@ const MedicalRecord = () => {
   const addPrescriptionRow = () => {
     setPrescriptions([
       ...prescriptions,
-      { medicine_name: "", dosage: "", instruction: "" },
+      { medicine_name: "", dosage: "", instructions: "" }, // Disamakan 'instructions'
     ]);
-  };
-
-  const removePrescriptionRow = (index) => {
-    const values = [...prescriptions];
-    values.splice(index, 1);
-    setPrescriptions(values);
   };
 
   const handleSubmit = async (e) => {
@@ -158,10 +152,16 @@ const MedicalRecord = () => {
       return;
     }
 
+    // Filter obat yang punya nama
+    const validPrescriptions = prescriptions.filter(
+      (item) => item.medicine_name && item.medicine_name.trim() !== "",
+    );
+
     setLoading(true);
 
     try {
-      const medicalRecordRes = await api.post("/medical-records", {
+      // Cukup 1x Request ke Backend! Karena Controller Backend kamu sudah sangat pintar!
+      const res = await api.post("/medical-records", {
         registration_id: Number(formData.registration_id),
         patient_id: Number(formData.patient_id),
         doctor_id: Number(doctorId),
@@ -173,26 +173,23 @@ const MedicalRecord = () => {
         height: Number(formData.objective_height) || null,
         assessment: formData.assessment,
         plan: formData.plan,
+        actions: formData.actions, // Mengirimkan tindakan medis langsung
+        prescriptions: validPrescriptions, // Mengirimkan daftar resep langsung
       });
 
-      const medicalRecordId = medicalRecordRes.data?.data?.id;
-
-      if (prescriptions.length > 0 && prescriptions[0].medicine_name !== "") {
-        await api.post("/prescriptions", {
-          medical_record_id: medicalRecordId,
-          items: prescriptions,
-        });
+      if (res.data?.success) {
+        alert("Pemeriksaan Dokter, Resep Obat, & Tindakan berhasil disimpan!");
+        navigate("/queues");
+      } else {
+        alert(res.data?.message || "Gagal menyimpan rekam medis.");
       }
-
-      if (queueId) {
-        await api.put(`/queues/${queueId}/status`, { status: "Selesai" });
-      }
-
-      alert("Pemeriksaan Dokter berhasil disimpan!");
-      navigate("/queues");
     } catch (err) {
       console.error("Gagal menyimpan rekam medis:", err);
-      alert(err.response?.data?.message || "Terjadi kesalahan saat menyimpan.");
+      alert(
+        err.response?.data?.message ||
+          err.message ||
+          "Terjadi kesalahan saat menyimpan.",
+      );
     } finally {
       setLoading(false);
     }
@@ -521,9 +518,9 @@ const MedicalRecord = () => {
                   />
                   <input
                     type="text"
-                    name="instruction"
+                    name="instructions"
                     placeholder="Aturan (ex: 3x1 sesudah makan)"
-                    value={item.instruction}
+                    value={item.instructions}
                     onChange={(e) => handlePrescriptionChange(index, e)}
                     style={{ ...inputStyle, flex: 2 }}
                   />

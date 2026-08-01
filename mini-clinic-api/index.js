@@ -11,6 +11,8 @@ const medicalRecordRoutes = require("./src/routes/medicalRecordRoutes");
 const queueRoutes = require("./src/routes/queueRoutes");
 const dashboardRoutes = require("./src/routes/dashboardRoutes");
 const doctorRoutes = require("./src/routes/doctorRoutes");
+const prescriptionRoutes = require('./src/routes/prescriptionRoutes');
+const treatmentRoutes = require('./src/routes/treatmentRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -40,6 +42,8 @@ app.use("/api/medical-records", medicalRecordRoutes);
 app.use("/api/queues", queueRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/doctors", doctorRoutes);
+app.use('/api/prescriptions', prescriptionRoutes); 
+app.use('/api/treatments', treatmentRoutes);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
