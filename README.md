@@ -17,7 +17,7 @@ Mini Clinic Information System adalah aplikasi berbasis web yang dirancang untuk
 Aplikasi menyediakan 3 role utama dengan hak akses tersendiri:
 
 | Role | Hak Akses |
-| :--- | :--- | :--- | :--- |
+| :--- | :--- |
 | **Administrator** | Akses penuh ke seluruh fitur & statistik dashboard |
 | **Petugas Pendaftaran** | Data pasien, pendaftaran kunjungan, & nomor antrean |
 | **Dokter** | Antrean, rekam medis (SOAP), & resep obat |
