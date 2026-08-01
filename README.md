@@ -16,11 +16,11 @@ Mini Clinic Information System adalah aplikasi berbasis web yang dirancang untuk
 ## 👥 Akun Login Testing
 Aplikasi menyediakan 3 role utama dengan hak akses tersendiri:
 
-| Role | Username | Password | Hak Akses |
+| Role | Hak Akses |
 | :--- | :--- | :--- | :--- |
-| **Administrator** | `admin` | `password123` | Akses penuh ke seluruh fitur & statistik dashboard |
-| **Petugas Pendaftaran** | `petugas` | `password123` | Data pasien, pendaftaran kunjungan, & nomor antrean |
-| **Dokter** | `dokter` | `password123` | Antrean, rekam medis (SOAP), & resep obat |
+| **Administrator** | Akses penuh ke seluruh fitur & statistik dashboard |
+| **Petugas Pendaftaran** | Data pasien, pendaftaran kunjungan, & nomor antrean |
+| **Dokter** | Antrean, rekam medis (SOAP), & resep obat |
 
 ---
 
