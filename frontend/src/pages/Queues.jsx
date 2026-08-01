@@ -29,7 +29,9 @@ const Queues = () => {
 
   const handleStatusChange = async (queueId, newStatus) => {
     try {
-      const res = await api.put(`/queues/${queueId}/status`, { status: newStatus });
+      const res = await api.put(`/queues/${queueId}/status`, {
+        status: newStatus,
+      });
       if (res.data.success) {
         fetchQueues();
       }
@@ -67,7 +69,11 @@ const Queues = () => {
           border="1"
           cellPadding="10"
           cellSpacing="0"
-          style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px" }}
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            marginTop: "10px",
+          }}
         >
           <thead>
             <tr style={{ backgroundColor: "#f2f2f2", color: "#333" }}>
@@ -90,7 +96,13 @@ const Queues = () => {
                   </td>
                   <td>{item.patient_name}</td>
                   <td>{item.polyclinic_name || "Poli Umum"}</td>
-                  <td>{item.initial_complaint || "-"}</td>
+                  <td>
+                    {item.complaint || 
+                     item.initial_complaint || 
+                     item.registration?.complaint || 
+                     item.registration?.initial_complaint || 
+                     "-"}
+                  </td>
                   <td>
                     <span
                       style={{
@@ -112,12 +124,15 @@ const Queues = () => {
                     </span>
                   </td>
                   <td>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      {/* Status: Menunggu -> Panggil atau Batal */}
+                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                      
+                      {/* 1. Status: MENUNGGU -> Hanya tampil Panggil Pasien & Batal */}
                       {item.status === "Menunggu" && (
                         <>
                           <button
-                            onClick={() => handleStatusChange(item.id, "Dipanggil")}
+                            onClick={() =>
+                              handleStatusChange(item.id, "Dipanggil")
+                            }
                             style={{
                               backgroundColor: "#eab308",
                               color: "#fff",
@@ -125,6 +140,7 @@ const Queues = () => {
                               padding: "6px 10px",
                               borderRadius: "4px",
                               cursor: "pointer",
+                              fontWeight: "bold",
                             }}
                           >
                             📢 Panggil Pasien
@@ -145,21 +161,25 @@ const Queues = () => {
                         </>
                       )}
 
-                      {/* Status: Dipanggil -> Selesaikan atau Batal */}
+                      {/* 2. Status: DIPANGGIL -> Tampil tombol Periksa Pasien, Selesaikan, & Batal */}
                       {item.status === "Dipanggil" && (
                         <>
                           <button
-                            onClick={() => handleStatusChange(item.id, "Selesai")}
+                            type="button"
+                            onClick={() => {
+                              navigate(`/medical-records/new/${item.id}`);
+                            }}
                             style={{
-                              backgroundColor: "#22c55e",
-                              color: "#fff",
+                              backgroundColor: "#16a34a",
+                              color: "#ffffff",
+                              padding: "6px 12px",
                               border: "none",
-                              padding: "6px 10px",
                               borderRadius: "4px",
                               cursor: "pointer",
+                              fontWeight: "bold",
                             }}
                           >
-                            ✅ Selesaikan
+                            🩺 Periksa Pasien
                           </button>
                           <button
                             onClick={() => handleStatusChange(item.id, "Batal")}
@@ -177,7 +197,7 @@ const Queues = () => {
                         </>
                       )}
 
-                      {/* Status Terakhir */}
+                      {/* 3. Status Terakhir */}
                       {item.status === "Selesai" && (
                         <span style={{ color: "#16a34a", fontWeight: "500" }}>
                           ✓ Selesai Dilayani

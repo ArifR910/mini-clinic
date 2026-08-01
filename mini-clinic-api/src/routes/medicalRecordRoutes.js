@@ -4,9 +4,20 @@ const {
     createMedicalRecord,
     getPatientMedicalHistory
 } = require('../controllers/medicalRecordController');
-const { verifyToken } = require('../middlewares/authMiddleware');
+const { verifyToken, checkRole } = require('../middlewares/authMiddleware');
 
-router.post('/', verifyToken, createMedicalRecord);
-router.get('/patient/:patient_id', verifyToken, getPatientMedicalHistory);
+router.post(
+    '/', 
+    verifyToken, 
+    checkRole(['Admin', 'Dokter']), 
+    createMedicalRecord
+);
+
+router.get(
+    '/patient/:patient_id', 
+    verifyToken, 
+    checkRole(['Admin', 'Dokter', 'Petugas Pendaftaran']), 
+    getPatientMedicalHistory
+);
 
 module.exports = router;

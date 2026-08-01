@@ -24,7 +24,7 @@ const createQueue = async (req, res) => {
   try {
     const [regResult] = await db.query(
       "SELECT polyclinic_id FROM registrations WHERE id = ?",
-      [registration_id],
+      [registration_id]
     );
 
     if (regResult.length === 0) {
@@ -35,7 +35,7 @@ const createQueue = async (req, res) => {
 
     const [existing] = await db.query(
       "SELECT * FROM queues WHERE registration_id = ?",
-      [registration_id],
+      [registration_id]
     );
 
     if (existing.length > 0) {
@@ -43,25 +43,25 @@ const createQueue = async (req, res) => {
         res,
         400,
         "Nomor antrean untuk pendaftaran ini sudah dibuat!",
-        existing[0],
+        existing[0]
       );
     }
 
     const [countResult] = await db.query(
       `SELECT COUNT(q.id) as total 
-             FROM queues q
-             JOIN registrations r ON q.registration_id = r.id
-             WHERE r.polyclinic_id = ? AND DATE(q.created_at) = CURDATE()`,
-      [polyclinic_id],
+       FROM queues q
+       JOIN registrations r ON q.registration_id = r.id
+       WHERE r.polyclinic_id = ? AND DATE(q.created_at) = CURDATE()`,
+      [polyclinic_id]
     );
 
     const totalToday = countResult[0].total + 1;
     const prefix = getPolyPrefix(polyclinic_id);
-    const queue_number = `${prefix}${String(totalToday).padStart(3, "0")}`; // Contoh: A001
+    const queue_number = `${prefix}${String(totalToday).padStart(3, "0")}`;
 
     const [result] = await db.query(
       'INSERT INTO queues (registration_id, queue_number, status) VALUES (?, ?, "Menunggu")',
-      [registration_id, queue_number],
+      [registration_id, queue_number]
     );
 
     return sendSuccess(res, 201, "Nomor antrean berhasil dibuat", {
@@ -80,24 +80,57 @@ const createQueue = async (req, res) => {
 const getTodayQueues = async (req, res) => {
   try {
     const query = `
-            SELECT 
-                q.id, q.registration_id, q.queue_number, q.status, q.created_at,
-                r.visit_date, r.payment_type, r.initial_complaint,
-                p.id AS patient_id, p.name AS patient_name, p.mr_number,
-                poly.id AS polyclinic_id, poly.name AS polyclinic_name
-            FROM queues q
-            JOIN registrations r ON q.registration_id = r.id
-            JOIN patients p ON r.patient_id = p.id
-            LEFT JOIN polyclinics poly ON r.polyclinic_id = poly.id
-            WHERE DATE(q.created_at) = CURDATE()
-            ORDER BY q.id ASC
-        `;
-    const [queues] = await db.query(query);
+      SELECT 
+        q.id, q.registration_id, q.queue_number, q.status, q.created_at,
+        r.visit_date, r.payment_type, r.initial_complaint,
+        p.id AS patient_id, p.name AS patient_name, p.nik, p.gender, p.birth_date, p.phone, p.address, p.mr_number,
+        poly.id AS polyclinic_id, poly.name AS polyclinic_name
+      FROM queues q
+      LEFT JOIN registrations r ON q.registration_id = r.id
+      LEFT JOIN patients p ON r.patient_id = p.id
+      LEFT JOIN polyclinics poly ON r.polyclinic_id = poly.id
+      WHERE DATE(q.created_at) = CURDATE()
+      ORDER BY q.id ASC
+    `;
+    const [rows] = await db.query(query);
+
+    const queues = rows.map((row) => ({
+      id: row.id,
+      registration_id: row.registration_id,
+      queue_number: row.queue_number,
+      status: row.status,
+      created_at: row.created_at,
+      
+      patient_name: row.patient_name || "-",
+      complaint: row.complaint || row.initial_complaint || "-",
+      polyclinic_name: row.polyclinic_name || "Poli Umum",
+      patient_id: row.patient_id,
+
+      patient: {
+        id: row.patient_id,
+        name: row.patient_name || "-",
+        nik: row.nik,
+        gender: row.gender,
+        birth_date: row.birth_date,
+        phone: row.phone,
+        address: row.address,
+        mr_number: row.mr_number,
+      },
+
+      registration: {
+        id: row.registration_id,
+        visit_date: row.visit_date,
+        payment_type: row.payment_type,
+        complaint: row.initial_complaint || "-",
+        polyclinic_name: row.polyclinic_name || "Poli Umum",
+      },
+    }));
+
     return sendSuccess(
       res,
       200,
       "Berhasil mengambil daftar antrean hari ini",
-      queues,
+      queues
     );
   } catch (error) {
     console.error("Error getTodayQueues:", error);
@@ -107,7 +140,7 @@ const getTodayQueues = async (req, res) => {
 
 // 3. PUT (Panggil atau Ubah Status Antrean)
 const updateQueueStatus = async (req, res) => {
-  const { id } = req.params; // ID dari tabel queues
+  const { id } = req.params;
   const { status } = req.body;
 
   const validStatuses = [
@@ -126,7 +159,7 @@ const updateQueueStatus = async (req, res) => {
   try {
     const [queueData] = await db.query(
       "SELECT registration_id FROM queues WHERE id = ?",
-      [id],
+      [id]
     );
 
     if (queueData.length === 0) {

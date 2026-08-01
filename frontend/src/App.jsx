@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Patients from "./pages/Patients";
 import Registrations from "./pages/Registrations";
 import Queues from "./pages/Queues";
+import MedicalRecord from "./pages/MedicalRecord";
 import { AuthProvider } from "./context/AuthContext";
 
 const ProtectedRoute = ({ children }) => {
@@ -26,6 +27,8 @@ function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
+
+          {/* Rute yang Membutuhkan Login */}
           <Route
             path="/dashboard"
             element={
@@ -34,9 +37,40 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/patients" element={<Patients />} />
-          <Route path="/registrations" element={<Registrations />} />
-          <Route path="/queues" element={<Queues />} />
+          <Route
+            path="/patients"
+            element={
+              <ProtectedRoute>
+                <Patients />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/registrations"
+            element={
+              <ProtectedRoute>
+                <Registrations />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/queues"
+            element={
+              <ProtectedRoute>
+                <Queues />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/medical-records/new/:queueId"
+            element={
+              <ProtectedRoute>
+                <MedicalRecord />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Fallback Route */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Router>

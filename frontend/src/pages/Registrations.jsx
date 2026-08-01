@@ -110,7 +110,7 @@ const Registrations = () => {
         ← Kembali
       </button>
 
-      <h2>Pendaftaran Berobat & Antrean</h2>
+      <h2>Pendaftaran Berobat</h2>
 
       <div
         style={{

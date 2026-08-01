@@ -1,93 +1,141 @@
-const db = require('../config/db');
+const db = require("../config/db");
 
 const sendSuccess = (res, statusCode, message, data = null) => {
-    return res.status(statusCode).json({ success: true, message, data });
+  return res.status(statusCode).json({ success: true, message, data });
 };
 
 const sendError = (res, statusCode, message, errors = null) => {
-    return res.status(statusCode).json({ success: false, message, errors });
+  return res.status(statusCode).json({ success: false, message, errors });
 };
 
-// 1. POST (Simpan hasil rekam medis dokter)
 const createMedicalRecord = async (req, res) => {
-    const { 
-        registration_id, 
-        patient_id, 
-        doctor_id, 
-        subjective, 
-        systolic, 
-        diastolic, 
-        body_temperature, 
-        weight, 
-        height, 
-        assessment, 
-        plan 
-    } = req.body;
+  const {
+    patient_id,
+    registration_id,
+    doctor_id,
+    subjective,
+    systolic,
+    diastolic,
+    body_temperature,
+    temperature,
+    weight,
+    height,
+    assessment,
+    plan,
+    actions,
+    prescriptions,
+  } = req.body;
 
-    if (!registration_id || !patient_id || !doctor_id || !assessment) {
-        return sendError(res, 400, 'registration_id, patient_id, doctor_id, dan assessment (diagnosa) wajib diisi!');
+  if (!patient_id || !registration_id) {
+    return sendError(res, 400, "patient_id dan registration_id wajib diisi!");
+  }
+
+  try {
+    const tempValue = body_temperature || temperature || null;
+
+    // 1. INSERT KE MEDICAL_RECORDS (Disesuaikan persis dengan phpMyAdmin)
+    const [recordResult] = await db.query(
+      `INSERT INTO medical_records 
+      (registration_id, patient_id, doctor_id, subjective, systolic, diastolic, body_temperature, weight, height, assessment, plan) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        registration_id,
+        patient_id,
+        doctor_id || 1,
+        subjective || "-",
+        systolic || null,
+        diastolic || null,
+        tempValue,
+        weight || null,
+        height || null,
+        assessment || "-",
+        plan || "-",
+      ]
+    );
+
+    const medicalRecordId = recordResult.insertId;
+
+    // 2. INSERT KE TREATMENTS (Tindakan)
+    if (actions && typeof actions === "string" && actions.trim() !== "") {
+      await db.query(
+        `INSERT INTO treatments (medical_record_id, treatment_name, notes) 
+         VALUES (?, ?, ?)`,
+        [medicalRecordId, actions, plan || "-"]
+      );
     }
 
-    try {
-        const [result] = await db.query(
-            `INSERT INTO medical_records 
-            (registration_id, patient_id, doctor_id, subjective, systolic, diastolic, body_temperature, weight, height, assessment, plan) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    // 3. INSERT KE PRESCRIPTIONS (Resep Obat)
+    if (prescriptions && Array.isArray(prescriptions) && prescriptions.length > 0) {
+      for (const item of prescriptions) {
+        // Cek jika properti medicine_name / medicineName diisi
+        const medicineName = item.medicine_name || item.medicineName;
+        if (medicineName && medicineName.trim() !== "") {
+          await db.query(
+            `INSERT INTO prescriptions (medical_record_id, medicine_name, dosage, instructions) 
+             VALUES (?, ?, ?, ?)`,
             [
-                registration_id, 
-                patient_id, 
-                doctor_id, 
-                subjective || null, 
-                systolic || null, 
-                diastolic || null, 
-                body_temperature || null, 
-                weight || null, 
-                height || null, 
-                assessment, 
-                plan || null
+              medicalRecordId,
+              medicineName,
+              item.dosage || "-",
+              item.instructions || item.instruction || "-",
             ]
-        );
-
-        await db.query('UPDATE registrations SET status = "Selesai" WHERE id = ?', [registration_id]);
-
-        return sendSuccess(res, 201, 'Rekam medis berhasil disimpan dan status pendaftaran selesai', {
-            medical_record_id: result.insertId
-        });
-    } catch (error) {
-        console.error('Error createMedicalRecord:', error);
-        return sendError(res, 500, 'Gagal menyimpan rekam medis');
+          );
+        }
+      }
     }
+
+    // 4. UPDATE STATUS ANTREAN & REGISTRASI
+    if (registration_id) {
+      await db.query("UPDATE registrations SET status = 'Selesai' WHERE id = ?", [
+        registration_id,
+      ]);
+      await db.query("UPDATE queues SET status = 'Selesai' WHERE registration_id = ?", [
+        registration_id,
+      ]);
+    }
+
+    return sendSuccess(
+      res,
+      201,
+      "Pemeriksaan Dokter, Tindakan & Resep berhasil disimpan!",
+      { medical_record_id: medicalRecordId }
+    );
+  } catch (error) {
+    console.error("=== ERROR MYSQL ===", error);
+    return sendError(res, 500, "Gagal menyimpan rekam medis", error.sqlMessage || error.message);
+  }
 };
 
-// 2. GET (Riwayat Rekam Medis Pasien)
 const getPatientMedicalHistory = async (req, res) => {
-    const { patient_id } = req.params;
+  const { patient_id } = req.params;
 
-    try {
-        const query = `
-            SELECT 
-                mr.id, mr.subjective, mr.systolic, mr.diastolic, mr.body_temperature, 
-                mr.weight, mr.height, mr.assessment, mr.plan, mr.created_at,
-                r.visit_date, r.initial_complaint, r.payment_type,
-                p.name AS patient_name, p.mr_number,
-                u.name AS doctor_name
-            FROM medical_records mr
-            JOIN registrations r ON mr.registration_id = r.id
-            JOIN patients p ON mr.patient_id = p.id
-            JOIN doctors d ON mr.doctor_id = d.id
-            JOIN users u ON d.user_id = u.id
-            WHERE mr.patient_id = ?
-            ORDER BY mr.created_at DESC
-        `;
-        const [history] = await db.query(query, [patient_id]);
-        return sendSuccess(res, 200, 'Berhasil mengambil riwayat rekam medis pasien', history);
-    } catch (error) {
-        console.error('Error getPatientMedicalHistory:', error);
-        return sendError(res, 500, 'Terjadi kesalahan pada server');
-    }
+  try {
+    const query = `
+      SELECT 
+        mr.*, 
+        p.name AS patient_name,
+        d.name AS doctor_name
+      FROM medical_records mr
+      JOIN patients p ON mr.patient_id = p.id
+      LEFT JOIN doctors d ON mr.doctor_id = d.id
+      WHERE mr.patient_id = ?
+      ORDER BY mr.created_at DESC
+    `;
+    const [history] = await db.query(query, [patient_id]);
+
+    return sendSuccess(
+      res,
+      200,
+      "Berhasil mengambil riwayat rekam medis pasien",
+      history
+    );
+  } catch (error) {
+    console.error("Error getPatientMedicalHistory:", error);
+    return sendError(res, 500, "Gagal mengambil riwayat rekam medis pasien");
+  }
 };
 
 module.exports = {
-    createMedicalRecord,
-    getPatientMedicalHistory
+  createMedicalRecord,
+  getPatientMedicalHistory,
 };
