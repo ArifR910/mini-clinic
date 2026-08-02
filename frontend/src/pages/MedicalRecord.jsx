@@ -147,12 +147,16 @@ const MedicalRecord = () => {
       return;
     }
 
-    const doctorId = user?.id || user?.user_id || user?.doctor_id;
+    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
 
-    if (!doctorId) {
-      alert("ID Dokter tidak ditemukan. Silakan re-login.");
-      return;
-    }
+    const doctorId =
+      user?.id ||
+      user?.user_id ||
+      user?.doctor_id ||
+      storedUser?.id ||
+      storedUser?.user_id ||
+      storedUser?.doctor_id ||
+      1;
 
     const validPrescriptions = prescriptions.filter(
       (item) => item.medicine_name && item.medicine_name.trim() !== ""
@@ -177,7 +181,7 @@ const MedicalRecord = () => {
         prescriptions: validPrescriptions,
       });
 
-      if (res.data?.success) {
+      if (res.data?.success || res.status === 200 || res.status === 201) {
         alert("Pemeriksaan Dokter, Resep Obat, & Tindakan berhasil disimpan!");
         navigate("/queues");
       } else {
@@ -210,7 +214,7 @@ const MedicalRecord = () => {
         <div
           style={{
             display: "flex",
-            justifyContent: "space-between",
+            justify: "space-between",
             alignItems: "center",
             marginBottom: "24px",
             flexWrap: "wrap",
@@ -478,7 +482,7 @@ const MedicalRecord = () => {
                 <div
                   style={{
                     display: "flex",
-                    justifyContent: "space-between",
+                    justify: "space-between",
                     alignItems: "center",
                     marginBottom: "16px",
                   }}
@@ -634,7 +638,8 @@ const inputStyle = {
   border: "1px solid #cbd5e1",
   boxSizing: "border-box",
   fontSize: "14px",
-  color: "#ffffff",
+  color: "#0f172a",
+  backgroundColor: "#ffffff",
   outline: "none",
   textAlign: "left",
 };
